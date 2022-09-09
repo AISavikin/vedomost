@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
-import os
 import locale
 from datetime import datetime
+from func import *
 
 locale.setlocale(locale.LC_ALL, 'ru-RU')
 date = datetime.now()
@@ -11,9 +11,12 @@ def main_window():
     # Основное окно приложения, само по себе ничего не делает, по сути навигационное меню.
     # Единственное значение которое можно передать дальше название группы
 
+    # Проверяем существование директории "Ведомости" если нет, создаём
+    check_directory()
+
+    # Собираем файлы ведомостей, для добавления в выпадающий список, если файлов нет, создается пустой список
     try:
-        # Собираем файлы ведомостей, для добавления в выпадающий список, если файлов нет, создается пустой список
-        list_group = [group.split('.')[0] for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
+        list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
         default_val = list_group[0]
     except IndexError:
         list_group = []
@@ -21,7 +24,7 @@ def main_window():
 
     layout = [
         [sg.Text("Ведомости детский сад")],
-        [sg.Button('Добавить группу'), sg.Button('Добавить ученика')],
+        [sg.Button('Добавить группу', expand_x=True), sg.Button('Добавить ученика')],
         [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
          sg.Button('Отметить')],
         [sg.Button('test')]
@@ -39,7 +42,7 @@ def main_window():
         if event == 'Добавить группу':
             add_new_sheet(values['file_name'], list_group)
 
-        if event == 'Отметить' or event == sg.WINDOW_CLOSED:
+        if event == 'Отметить':
             check_kids(values['file_name'])
 
         if event == 'test':
@@ -55,13 +58,7 @@ def add_new_kids(file_name: str):
     :param file_name: str: имя файла без расширения
     """
     # Получаем имена и фамилии детей в виде списка строк
-    # kids = get_kids() TODO: Функция для получения списка фамилий из файла Excel, убрать заглушку
-
-    # Начало заглушки
-    kids = ['Боровиков Яша', 'Всецина Нина', 'Кракозябра', 'Литвиненко Полина', 'Мушникова Полина', 'Саечкин Демид',
-            'Донцова Олеся', 'Мазнева Валерия', 'Малехина Ярослава', 'Пиримова Амира', 'Тимашевская Анастасия',
-            'Чугунов Ярослав', 'Бобрышева Маша', 'Дорошенко Алиса', 'Бегенова София']
-    # Конец заглушки
+    kids = get_kids(file_name)
 
     # Левая колонка
     left_col = [
@@ -81,7 +78,7 @@ def add_new_kids(file_name: str):
 
     while True:
         event, values = window.read()
-        if event == sg.WINDOW_CLOSED or event == 'Quit':
+        if event == sg.WINDOW_CLOSED:
             break
 
         if event == 'Добавить' and values['name']:
@@ -90,7 +87,7 @@ def add_new_kids(file_name: str):
             window['table'].update(values=enumerate(kids, 1))
 
         if event == 'Сохранить':
-            # TODO функция для сохранения файла Excel
+            save_new_kids(file_name, kids)  # TODO функция для сохранения файла Excel
             break
 
     window.close()
@@ -103,7 +100,8 @@ def add_new_sheet(file_name: str, list_group: list):
     :param list_group: list список существующих ведомостей
     """
     # Добавляем в список групп значение "Новая группа"
-    list_group.append('Новая группа')
+    if 'Новая группа' not in list_group:
+        list_group.append('Новая группа')
 
     left = [
         [sg.Text('На основе')],
@@ -114,7 +112,7 @@ def add_new_sheet(file_name: str, list_group: list):
         [sg.Combo(list_group, size=(18, 0), key='base', default_value=file_name, readonly=True)],
         [sg.Input(size=(18, 0), key='file_name')],
         [sg.Combo(['Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май'],
-                  size=(18, 0), key='month', default_value=f'{date: %B}', readonly=True)]
+                  size=(18, 0), key='month', default_value=f'{date:%B}', readonly=True)]
     ]
     layout = [
         [sg.Column(left), sg.Column(right)],
@@ -134,10 +132,11 @@ def add_new_sheet(file_name: str, list_group: list):
             base = values['base']
             file_name = values['file_name']
 
-            if not file_name:
+            if not file_name and base == 'Новая группа':
                 sg.Popup('Введите название группы!', title='Ошибка')
 
-            # create_new_sheet(file_name, month, base) TODO: функция для создания новой ведомости
+            create_new_sheet(file_name, month, base)  # TODO: функция для создания новой ведомости
+            break
 
     window.close()
 
@@ -148,13 +147,7 @@ def check_kids(file_name: str):
     :param file_name: str имя файла без расширения
     """
     # Получаем список детей из файла Excel
-    # kids = get_kids() TODO: Функция для получения списка фамилий из файла Excel, убрать заглушку
-
-    # Начало заглушки
-    kids = ['Боровиков Яша', 'Всецина Нина', 'Кракозябра', 'Литвиненко Полина', 'Мушникова Полина', 'Саечкин Демид',
-            'Донцова Олеся', 'Мазнева Валерия', 'Малехина Ярослава', 'Пиримова Амира', 'Тимашевская Анастасия',
-            'Чугунов Ярослав', 'Бобрышева Маша', 'Дорошенко Алиса', 'Бегенова София']
-    # Конец заглушки
+    kids = get_kids(file_name)
     # Левая колонка: текстовые виджеты с именами детей из списка kids
     left_col = [[sg.Text(kid)] for kid in kids]
     # Правая колонка с пустыми инпутами, пронумерованные от нуля
@@ -186,10 +179,10 @@ def check_kids(file_name: str):
         prev_focus = focus.get_previous_focus()
         next_focus = focus.get_next_focus()
 
-        if event == 'Right:39':
+        if event == 'Right:39' and type(focus) == sg.PySimpleGUI.Input:
             focus.update('б')
 
-        if event == 'Left:37':
+        if event == 'Left:37' and type(focus) == sg.PySimpleGUI.Input:
             focus.update('н')
 
         if event == 'Up:38':
@@ -204,7 +197,7 @@ def check_kids(file_name: str):
                 sg.Popup('Вы отметили не всех!')
             else:
                 print(absent)
-                # check_absent(absent) TODO: Функция для записи отсутствующих
+                check_absent(file_name, absent)  # TODO: Функция для записи отсутствующих
 
     window.close()
 

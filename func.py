@@ -1,65 +1,53 @@
-import win32com.client
 import os
+from openpyxl import load_workbook
+import shutil
 
 
-def excel(func):
-    def wrapper(file_name, *args, **kwargs):
-        Excel = win32com.client.Dispatch("Excel.Application")
-        path = f'{os.path.abspath(file_name)}.xlsx'
-        wb = Excel.Workbooks.Open(path)
-        sheet = wb.ActiveSheet
+def write_xls(func):
+    def wrapper(file_name, *args):
+        wb = load_workbook(f'Ведомости/{file_name}')
+        ws = wb.active
 
-        res = func(sheet, *args, **kwargs)
+        res = func(ws, *args)
 
-        wb.Save()
-        wb.Close()
-        Excel.Quit()
-        return res
+        wb.save(f'Ведомости/{file_name}')
 
     return wrapper
 
 
-@excel
-def read_xls(sheet):
-    vals = []
-    row = 16
-    while sheet.Cells(row, 2).value:
-        vals.append(sheet.Cells(row, 2).value)
-        row += 1
-    return vals
+def get_kids(file_name):
+    wb = load_workbook(f'Ведомости/{file_name}')
+    ws = wb.active
+    names = ws['B16:B38']
+    return [names[i][0].value for i in range(23) if names[i][0].value]
 
 
-@excel
-def write_absent(sheet, **kwargs):
-    data, day = kwargs['data'], kwargs['day']
-    col = day + 4
-    row = 16
-    for kid in data:
-        sheet.Cells(row, col).value = kid
-        row += 1
+@write_xls
+def save_new_kids(ws, *args):
+    cells = 'B16:B38'
+    kids = args[0]
+    for i in range(len(kids)):
+        ws[cells][i][0].value = kids[i]
 
 
-@excel
-def write_new_kids(sheet, **kwargs):
-    row, new_kids = kwargs['row'] + 15, kwargs['new_kids']
-    col = 2
-    for kid in new_kids:
-        sheet.Cells(row, col).value = kid
-        row += 1
+@write_xls
+def clear_absent(ws):
+    for row in range(16, 39):
+        for col in range(5, 36):
+            ws.cell(row=row, column=col).value = '*'
 
 
-@excel
-def write_month(sheet, month, group_name):
-    data = ['' for _ in range(22)]
-    for col in range(5, 38):
-        row = 16
-        for rec in data:
-            sheet.Cells(row, col).value = rec
-            row += 1
-    sheet.Cells(3, 14).value = month
-    sheet.Cells(42, 27).value = month
-    sheet.Cells(5, 3).value = group_name
+def create_new_sheet(file_name, month, base):
+    print(f'{file_name=}\n{base=}\n{month=}')
+    if base == 'Новая группа':
+        shutil.copyfile('Template.xlsx', f'Ведомости/{file_name}_{month}.xlsx')
+        return
+    file_name = base.split('_')[0]
+    shutil.copyfile(f'Ведомости/{base}', f'Ведомости/{file_name}_{month}.xlsx')
 
+
+def check_absent(file_name, absent):
+    pass
 
 
 def check_directory():
@@ -67,11 +55,9 @@ def check_directory():
         os.mkdir('Ведомости')
 
 
-def main():
-    check_directory()
-    kids = read_xls('Template — копия')
-    print(kids)
+def test():
+    pass
 
 
 if __name__ == '__main__':
-    main()
+    clear_absent('Группа 1_Апрель.xlsx')
