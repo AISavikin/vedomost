@@ -6,6 +6,7 @@ from func import *
 locale.setlocale(locale.LC_ALL, 'ru-RU')
 date = datetime.now()
 
+sg.theme('DarkTeal10')
 
 def main_window():
     # Основное окно приложения, само по себе ничего не делает, по сути навигационное меню.
@@ -87,7 +88,7 @@ def add_new_kids(file_name: str):
             window['table'].update(values=enumerate(kids, 1))
 
         if event == 'Сохранить':
-            save_new_kids(file_name, kids)  # TODO функция для сохранения файла Excel
+            save_new_kids(file_name, kids)
             break
 
     window.close()
@@ -135,7 +136,7 @@ def add_new_sheet(file_name: str, list_group: list):
             if not file_name and base == 'Новая группа':
                 sg.Popup('Введите название группы!', title='Ошибка')
 
-            create_new_sheet(file_name, month, base)  # TODO: функция для создания новой ведомости
+            create_new_sheet(file_name, base, month)
             break
 
     window.close()
@@ -196,8 +197,7 @@ def check_kids(file_name: str):
             if not all(absent):
                 sg.Popup('Вы отметили не всех!')
             else:
-                print(absent)
-                check_absent(file_name, absent)  # TODO: Функция для записи отсутствующих
+                check_absent(file_name, values['date'], absent)
 
     window.close()
 
