@@ -42,6 +42,8 @@ def main_window():
 
         if event == 'Добавить группу':
             add_new_sheet(values['file_name'], list_group)
+            list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
+            window['file_name'].update(values=list_group, set_to_index=0)
 
         if event == 'Отметить':
             check_kids(values['file_name'])
@@ -64,8 +66,8 @@ def add_new_kids(file_name: str):
     # Левая колонка
     left_col = [
         [sg.Text('Фамилия и имя')],
-        [sg.Input(key='name', focus=True, size=25)],
-        [sg.Button('Добавить'), sg.Button('Сохранить')]
+        [sg.Input(key='name', focus=True, size=26)],
+        [sg.Button('Сохранить'), sg.Button('Исправить'), sg.Button('+')]
     ]
     # Правая колонка
     right_col = [
@@ -75,21 +77,28 @@ def add_new_kids(file_name: str):
     ]
 
     layout = [[sg.Column(left_col), sg.Column(right_col, element_justification='center')]]
-    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, modal=True)
+    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, modal=True, finalize=True)
+    window.bind("<Return>", "+")
 
     while True:
         event, values = window.read()
         if event == sg.WINDOW_CLOSED:
             break
 
-        if event == 'Добавить' and values['name']:
+        if event == '+' and values['name']:
             kids.append(values['name'])
             window['name'].update('')
             window['table'].update(values=enumerate(kids, 1))
 
+        if event == 'Исправить' and values['table']:
+            kids[values['table'][0]] = values['name']
+            window['table'].update(values=enumerate(kids, 1))
+            window['name'].update('')
+
         if event == 'Сохранить':
             save_new_kids(file_name, kids)
             break
+
 
     window.close()
 
@@ -173,7 +182,6 @@ def check_kids(file_name: str):
 
     while True:
         event, values = window.read()
-
         if event == sg.WINDOW_CLOSED:
             break
         focus = window.find_element_with_focus()

@@ -1,5 +1,6 @@
+import calendar
 import os
-from openpyxl import load_workbook
+from openpyxl import load_workbook, styles
 import shutil
 
 
@@ -58,11 +59,25 @@ def check_absent(ws, day, absent):
     for row in range(len(absent)):
         ws.cell(row=row + 16, column=column).value = absent[row]
 
+
 @write_xls
 def write_service_information(ws, month, group):
     ws['N3'].value = month
     ws['AA42'].value = month
     ws['C5'].value = group
+
+
+@write_xls
+def colorize_weekend(ws, month):
+    month_dict = {
+        'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12, 'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4,
+        'Май': 5
+    }
+    c = calendar.Calendar()
+    weekends = [day[0] for day in c.itermonthdays2(2022, month_dict[month]) if day[0] != 0 and day[1] in (5, 6)]
+    for row in range(16, 39):
+        for col in weekends:
+            ws.cell(row=row, column=col + 4).fill = styles.PatternFill(start_color='5E5E5E', fill_type='solid')
 
 
 def copy_sheet(file_name, base, month):
@@ -74,12 +89,13 @@ def copy_sheet(file_name, base, month):
     shutil.copyfile(f'Ведомости/{base}', new_path)
     return f'{file_name}_{month}.xlsx'
 
-def create_new_sheet(file_name, base, month):
 
+def create_new_sheet(file_name, base, month):
     file_name = copy_sheet(file_name, base, month)
     group = file_name.split('_')[0]
     clear_absent(file_name)
     write_service_information(file_name, month, group)
+    colorize_weekend(file_name, month)
 
 
 def test():
@@ -87,6 +103,7 @@ def test():
     base = 'Новая группа'
     month = 'Октябрь'
     create_new_sheet(file_name, base, month)
+
 
 if __name__ == '__main__':
     test()
