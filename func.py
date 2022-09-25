@@ -15,13 +15,13 @@ def write_xls(func):
     Первым параметром, обязательно передавать относительный путь к файлу
     """
 
-    def wrapper(file_name: str, *args):
+    def wrapper(file_name: str, *args, worksheet: str='Посещаемость', save=True):
         wb = load_workbook(f'Ведомости/{file_name}')
-        ws = wb.active
+        ws = wb[worksheet]
 
         func(ws, *args)
-
-        wb.save(f'Ведомости/{file_name}')
+        if save:
+            wb.save(f'Ведомости/{file_name}')
 
     return wrapper
 
@@ -32,7 +32,7 @@ def get_kids(file_name):
     :return: Список строк с именами детей
     """
     wb = load_workbook(f'Ведомости/{file_name}')
-    ws = wb.active
+    ws = wb['Посещаемость']
     names = ws['B16:B38']
     return [names[i][0].value for i in range(23) if names[i][0].value]
 
@@ -51,6 +51,7 @@ def clear_absent(ws):
     for row in range(16, 39):
         for col in range(5, 36):
             ws.cell(row=row, column=col).value = ''
+            ws.cell(row=row, column=col).fill = styles.PatternFill()
 
 
 @write_xls
@@ -98,12 +99,49 @@ def create_new_sheet(file_name, base, month):
     colorize_weekend(file_name, month)
 
 
-def test():
-    file_name = 'Группа 1'
-    base = 'Новая группа'
-    month = 'Октябрь'
-    create_new_sheet(file_name, base, month)
+def save_notes(file_name, day, note):
+    """!!!!!!!!!!!!ДОПИЛИТЬ!!!!!!!!!!!"""
+
+    wb = load_workbook(f'Ведомости/{file_name}')
+    ws = wb['Заметки']
+    row = 1
+    while ws.cell(row=row, column=1).value:
+        if ws.cell(row=row, column=1).value == day:
+            break
+        row += 1
+    ws.cell(row=row, column=1).value = day
+    ws.cell(row=row, column=2).value = note
+    wb.save(f'Ведомости/{file_name}')
+
+
+def read_note(file_name, day):
+    """!!!!!!!!!!!!ДОПИЛИТЬ!!!!!!!!!!!"""
+
+    wb = load_workbook(f'Ведомости/{file_name}')
+    ws = wb['Заметки']
+    row = 1
+    while ws.cell(row=row, column=1).value:
+        if ws.cell(row=row, column=1).value == day:
+            break
+        row += 1
+    if not ws.cell(row=row, column=2).value:
+        return ''
+    return ws.cell(row=row, column=2).value
+
+
+def clear_note(file_name):
+    """!!!!!!!!!!!!ДОПИЛИТЬ!!!!!!!!!!!"""
+    wb = load_workbook(f'Ведомости/{file_name}')
+    ws = wb['Заметки']
+    cells = 'A1:A20'
+    for i in ws[cells]:
+        i[0].value = ''
+    cells = 'B1:B20'
+    for i in ws[cells]:
+        i[0].value = ''
+
+    wb.save(f'Ведомости/{file_name}')
 
 
 if __name__ == '__main__':
-    test()
+    print(get_kids('Группа 1_Октябрь.xlsx'))

@@ -8,6 +8,7 @@ date = datetime.now()
 
 sg.theme('DarkTeal10')
 
+
 def main_window():
     # Основное окно приложения, само по себе ничего не делает, по сути навигационное меню.
     # Единственное значение которое можно передать дальше название группы
@@ -25,10 +26,10 @@ def main_window():
 
     layout = [
         [sg.Text("Ведомости детский сад")],
-        [sg.Button('Добавить группу', expand_x=True), sg.Button('Добавить ученика')],
+        [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Добавить ученика')],
         [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
          sg.Button('Отметить')],
-        [sg.Button('test')]
+        [sg.Button('Заметки', expand_x=True)]
     ]
 
     window = sg.Window('Ведомости', layout, element_justification='center')
@@ -40,7 +41,7 @@ def main_window():
         if event == 'Добавить ученика':
             add_new_kids(values['file_name'])
 
-        if event == 'Добавить группу':
+        if event == 'Добавить ведомость':
             add_new_sheet(values['file_name'], list_group)
             list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
             window['file_name'].update(values=list_group, set_to_index=0)
@@ -48,8 +49,8 @@ def main_window():
         if event == 'Отметить':
             check_kids(values['file_name'])
 
-        if event == 'test':
-            test(values['file_name'])
+        if event == 'Заметки':
+            notes(values['file_name'], list_group)
 
     window.close()
 
@@ -67,7 +68,8 @@ def add_new_kids(file_name: str):
     left_col = [
         [sg.Text('Фамилия и имя')],
         [sg.Input(key='name', focus=True, size=26)],
-        [sg.Button('Сохранить'), sg.Button('Исправить'), sg.Button('+')]
+        [sg.Button('Сохранить'), sg.Button('Исправить'), sg.Button('+')],
+        # [sg.Button('Удалить')]
     ]
     # Правая колонка
     right_col = [
@@ -95,10 +97,13 @@ def add_new_kids(file_name: str):
             window['table'].update(values=enumerate(kids, 1))
             window['name'].update('')
 
+        # if event == 'Удалить':
+        #     kids.pop(values['table'][0])
+        #     window['table'].update(values=enumerate(kids, 1))
+
         if event == 'Сохранить':
             save_new_kids(file_name, kids)
             break
-
 
     window.close()
 
@@ -206,31 +211,36 @@ def check_kids(file_name: str):
                 sg.Popup('Вы отметили не всех!')
             else:
                 check_absent(file_name, values['date'], absent)
+                break
 
     window.close()
 
 
-def test(file_name):
-    kids = ['Боровиков Яша', 'Всецина Нина', 'Кракозябра', 'Литвиненко Полина', 'Мушникова Полина', 'Саечкин Демид',
-            'Донцова Олеся', 'Мазнева Валерия', 'Малехина Ярослава', 'Пиримова Амира', 'Тимашевская Анастасия',
-            'Чугунов Ярослав', 'Бобрышева Маша', 'Дорошенко Алиса', 'Бегенова София']
-
+def notes(file_name: str, list_group: list):
+    note = read_note(file_name, date.day)
     layout = [
-        [sg.Text('qweqwe')],
-        [sg.Input()],
-        [sg.Button('OK')]
+        [sg.Combo(list_group, default_value=file_name, k='file_name'),
+         sg.Combo(list(range(1, 31)), default_value=date.day, enable_events=True, key='day')],
+        [sg.Multiline(default_text=note, size=(50, 20), key='text')],
+        [sg.Button('Сохранить')]
     ]
 
-    window = sg.Window('Отметить ученика', layout, finalize=True, element_justification='center',
-                       return_keyboard_events=True)
+    window = sg.Window('Заметки', layout, element_justification='center', modal=True)
 
     while True:
         event, values = window.read()
-        print(event)
-        if event == sg.WINDOW_CLOSED:
-            break
 
-    window.close()
+        if event == 'Отмена' or event == sg.WINDOW_CLOSED:
+            break
+        if event == 'day':
+            note = read_note(values['file_name'], values['day'])
+            if note:
+                window['text'].update(note)
+            else:
+                window['text'].update('')
+        if event == 'Сохранить':
+            note = values['text']
+            save_notes(values['file_name'], values['day'], note)
 
 
 def main():
