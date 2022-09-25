@@ -15,13 +15,12 @@ def write_xls(func):
     Первым параметром, обязательно передавать относительный путь к файлу
     """
 
-    def wrapper(file_name: str, *args, worksheet: str='Посещаемость', save=True):
+    def wrapper(file_name: str, *args):
         wb = load_workbook(f'Ведомости/{file_name}')
-        ws = wb[worksheet]
+        ws = wb['Посещаемость']
 
         func(ws, *args)
-        if save:
-            wb.save(f'Ведомости/{file_name}')
+        wb.save(f'Ведомости/{file_name}')
 
     return wrapper
 
