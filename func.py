@@ -3,6 +3,10 @@ import os
 from openpyxl import load_workbook, styles
 import shutil
 
+MONTH_DICT = {
+    'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12, 'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4,
+    'Май': 5
+}
 
 def check_directory():
     if not os.path.exists('Ведомости'):
@@ -77,12 +81,9 @@ def colorize_weekend(file_name, month):
     file_name = f'Ведомости/{file_name}'
     work_book = load_workbook(file_name)
     ws = work_book['Посещаемость']
-    month_dict = {
-        'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12, 'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4,
-        'Май': 5
-    }
+
     c = calendar.Calendar()
-    weekends = [day[0] for day in c.itermonthdays2(2022, month_dict[month]) if day[0] != 0 and day[1] in (5, 6)]
+    weekends = [day[0] for day in c.itermonthdays2(2022, MONTH_DICT[month]) if day[0] != 0 and day[1] in (5, 6)]
     for row in range(16, 39):
         for col in weekends:
             ws.cell(row=row, column=col + 4).fill = styles.PatternFill(start_color='5E5E5E', fill_type='solid')
