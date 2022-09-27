@@ -10,19 +10,6 @@ lorem = """Lorem ipsum dolor  auctor, vestibulum lacinia velit. Sed dapibus vel 
 def notes_window(file_name: str):
     notes = read_notes(file_name)
 
-    # notes = {
-    #     2: lorem,
-    #     7: lorem,
-    #     9: lorem,
-    #     14: lorem,
-    #     16: lorem,
-    #     21: lorem,
-    #     23: lorem,
-    #     28: lorem,
-    #     30: lorem,
-    #
-    # }
-
     n = [[sg.Text(day),
           sg.Multiline(default_text=notes[day], size=(50, 6), key=day, no_scrollbar=True, auto_size_text=True)] for day
          in notes]
@@ -100,3 +87,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    month = file_name.split('_')[-1][:-4]
+    work_days = get_work_days(MONTH_DICT[month])

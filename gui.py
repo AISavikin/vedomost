@@ -1,59 +1,6 @@
 import PySimpleGUI as sg
-import locale
-from datetime import datetime
+
 from func import *
-
-locale.setlocale(locale.LC_ALL, 'ru-RU')
-date = datetime.now()
-
-sg.theme('DarkTeal10')
-
-
-def main_window():
-    # Основное окно приложения, само по себе ничего не делает, по сути навигационное меню.
-    # Единственное значение которое можно передать дальше название группы
-
-    # Проверяем существование директории "Ведомости" если нет, создаём
-    check_directory()
-
-    # Собираем файлы ведомостей, для добавления в выпадающий список, если файлов нет, создается пустой список
-    try:
-        list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
-        default_val = list_group[0]
-    except IndexError:
-        list_group = []
-        default_val = ''
-
-    layout = [
-        [sg.Text("Ведомости детский сад")],
-        [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Добавить ученика')],
-        [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
-         sg.Button('Отметить')],
-        [sg.Button('Заметки', expand_x=True)]
-    ]
-
-    window = sg.Window('Ведомости', layout, element_justification='center')
-    while True:
-        event, values = window.read()
-        if event == sg.WINDOW_CLOSED:
-            break
-
-        if event == 'Добавить ученика':
-            add_new_kids(values['file_name'])
-
-        if event == 'Добавить ведомость':
-            add_new_sheet(values['file_name'], list_group)
-            list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
-            window['file_name'].update(values=list_group, set_to_index=0)
-
-        if event == 'Отметить':
-            check_kids(values['file_name'])
-
-        if event == 'Заметки':
-            notes(values['file_name'], list_group)
-
-    window.close()
-
 
 def add_new_kids(file_name: str):
     """
@@ -150,7 +97,8 @@ def add_new_sheet(file_name: str, list_group: list):
             if not file_name and base == 'Новая группа':
                 sg.Popup('Введите название группы!', title='Ошибка')
 
-            create_new_sheet(file_name, base, month)
+            if not create_new_sheet(file_name, base, month):
+                sg.Popup('Такая группа уже есть')
             break
 
     window.close()
@@ -161,6 +109,9 @@ def check_kids(file_name: str):
     Создает окно для проверки отсутствующих
     :param file_name: str имя файла без расширения
     """
+    month = file_name.split('_')[-1][:-5]
+    work_days = get_work_days(MONTH_DICT[month])
+
     # Получаем список детей из файла Excel
     kids = get_kids(file_name)
     # Левая колонка: текстовые виджеты с именами детей из списка kids
@@ -171,11 +122,11 @@ def check_kids(file_name: str):
     right_col[0][0].Focus = True
 
     layout = [
+        [sg.Text(f'{file_name}')],
         [sg.Frame('Дата',
                   [[sg.Text('Число: '),
-                    sg.Combo(list(range(1, 32)), default_value=f'{date:%d}', k='date'),
-                    sg.Text(f'{date:%B}')]])],
-        [sg.Text(f'{file_name}')],
+                    sg.Combo(work_days, default_value=f'{date:%d}', k='date'),
+                    sg.Text(month)]])],
         [sg.Column(left_col), sg.Column(right_col)],
         [sg.Button('Отметить')]
     ]
@@ -216,12 +167,17 @@ def check_kids(file_name: str):
     window.close()
 
 
-def notes(file_name: str, list_group: list):
-    note = read_note(file_name, date.day)
+def notes_window(file_name: str):
+    notes = read_notes(file_name)
+
+    n = [[sg.Text(day),
+          sg.Multiline(default_text=notes[day], size=(50, 6), key=day, no_scrollbar=True, auto_size_text=True)] for day
+         in notes]
+
     layout = [
-        [sg.Combo(list_group, default_value=file_name, k='file_name'),
-         sg.Combo(list(range(1, 31)), default_value=date.day, enable_events=True, key='day')],
-        [sg.Multiline(default_text=note, size=(50, 20), key='text')],
+        [sg.Text(file_name)],
+        [sg.Column(n, scrollable=True, vertical_scroll_only=True, size_subsample_width=1, element_justification='r',
+                   size=(400, 600), key='column')],
         [sg.Button('Сохранить')]
     ]
 
@@ -232,19 +188,14 @@ def notes(file_name: str, list_group: list):
 
         if event == 'Отмена' or event == sg.WINDOW_CLOSED:
             break
-        if event == 'day':
-            note = read_note(values['file_name'], values['day'])
-            if note:
-                window['text'].update(note)
-            else:
-                window['text'].update('')
-        if event == 'Сохранить':
-            note = values['text']
-            save_notes(values['file_name'], values['day'], note)
 
+        if event == 'Сохранить':
+            notes = {day: values[day] for day in values if day != 'file_name'}
+            save_notes(file_name, notes)
+            break
 
 def main():
-    main_window()
+    pass
 
 
 if __name__ == '__main__':
