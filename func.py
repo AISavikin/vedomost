@@ -9,20 +9,6 @@ def check_directory():
         os.mkdir('Ведомости')
 
 
-# def write_xls(func):
-#     """
-#     Декоратор, для открытия и записи файла Excel.
-#     Первым параметром, обязательно передавать относительный путь к файлу
-#     """
-#
-#     def wrapper(file_name: str, *args):
-#         wb = load_workbook(f'Ведомости/{file_name}')
-#         ws = wb['Посещаемость']
-#
-#         func(ws, *args)
-#         wb.save(f'Ведомости/{file_name}')
-#
-#     return wrapper
 
 
 def get_kids(file_name):
