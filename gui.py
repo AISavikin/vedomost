@@ -210,7 +210,7 @@ def check_kids(file_name: str):
             if not all(absent):
                 sg.Popup('Вы отметили не всех!')
             else:
-                check_absent(file_name, values['date'], absent)
+                mark_absent(file_name, values['date'], absent)
                 break
 
     window.close()

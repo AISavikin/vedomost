@@ -9,20 +9,20 @@ def check_directory():
         os.mkdir('Ведомости')
 
 
-def write_xls(func):
-    """
-    Декоратор, для открытия и записи файла Excel.
-    Первым параметром, обязательно передавать относительный путь к файлу
-    """
-
-    def wrapper(file_name: str, *args):
-        wb = load_workbook(f'Ведомости/{file_name}')
-        ws = wb['Посещаемость']
-
-        func(ws, *args)
-        wb.save(f'Ведомости/{file_name}')
-
-    return wrapper
+# def write_xls(func):
+#     """
+#     Декоратор, для открытия и записи файла Excel.
+#     Первым параметром, обязательно передавать относительный путь к файлу
+#     """
+#
+#     def wrapper(file_name: str, *args):
+#         wb = load_workbook(f'Ведомости/{file_name}')
+#         ws = wb['Посещаемость']
+#
+#         func(ws, *args)
+#         wb.save(f'Ведомости/{file_name}')
+#
+#     return wrapper
 
 
 def get_kids(file_name):
@@ -36,39 +36,61 @@ def get_kids(file_name):
     return [names[i][0].value for i in range(23) if names[i][0].value]
 
 
-@write_xls
-def save_new_kids(ws, kids):
+def save_new_kids(file_name, kids):
+    file_name = f'Ведомости/{file_name}'
+    work_book = load_workbook(file_name)
+    ws = work_book['Посещаемость']
     cells = 'B16:B38'
+
+    for i in ws[cells]:
+        i[0].value = ''
+
     for i in range(len(kids)):
         ws[cells][i][0].value = kids[i]
 
+    work_book.save(file_name)
 
-@write_xls
-def clear_absent(ws):
+
+def clear_absent(file_name):
+    file_name = f'Ведомости/{file_name}'
     # Очищает ячейки от "н, б"
     # 16 - 39 диапазон строк, 5 - 36 диапазон столбцов
+    work_book = load_workbook(file_name)
+    ws = work_book['Посещаемость']
     for row in range(16, 39):
         for col in range(5, 36):
             ws.cell(row=row, column=col).value = ''
             ws.cell(row=row, column=col).fill = styles.PatternFill()
 
+    work_book.save(file_name)
 
-@write_xls
-def check_absent(ws, day, absent):
+
+def mark_absent(file_name, day, absent):
+    file_name = f'Ведомости/{file_name}'
+    work_book = load_workbook(file_name)
+    ws = work_book['Посещаемость']
     column = day + 4
     for row in range(len(absent)):
         ws.cell(row=row + 16, column=column).value = absent[row]
 
+    work_book.save(file_name)
 
-@write_xls
-def write_service_information(ws, month, group):
+
+def write_service_information(file_name, month, group):
+    file_name = f'Ведомости/{file_name}'
+    work_book = load_workbook(file_name)
+    ws = work_book['Посещаемость']
     ws['N3'].value = month
     ws['AA42'].value = month
     ws['C5'].value = group
 
+    work_book.save(file_name)
 
-@write_xls
-def colorize_weekend(ws, month):
+
+def colorize_weekend(file_name, month):
+    file_name = f'Ведомости/{file_name}'
+    work_book = load_workbook(file_name)
+    ws = work_book['Посещаемость']
     month_dict = {
         'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12, 'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4,
         'Май': 5
@@ -78,6 +100,8 @@ def colorize_weekend(ws, month):
     for row in range(16, 39):
         for col in weekends:
             ws.cell(row=row, column=col + 4).fill = styles.PatternFill(start_color='5E5E5E', fill_type='solid')
+
+    work_book.save(file_name)
 
 
 def copy_sheet(file_name, base, month):
