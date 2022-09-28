@@ -56,7 +56,7 @@ def mark_absent(file_name, day, absent):
     file_name = f'Ведомости/{file_name}'
     work_book = load_workbook(file_name)
     ws = work_book['Посещаемость']
-    column = day + 4
+    column = int(day) + 4
     for row in range(len(absent)):
         ws.cell(row=row + 16, column=column).value = absent[row]
 
@@ -69,10 +69,11 @@ def read_notes(file_name):
     row = 1
     notes = {}
     while ws.cell(row=row, column=1).value:
-        if ws.cell(row=row, column=2).value == 'None':
-            notes[ws.cell(row=row, column=1).value] = ''
-        else:
+        if ws.cell(row=row, column=2).value:
             notes[ws.cell(row=row, column=1).value] = ws.cell(row=row, column=2).value
+        else:
+            notes[ws.cell(row=row, column=1).value] = ''
+
         row += 1
     return notes
 
@@ -100,6 +101,7 @@ def create_new_sheet(file_name, base, month):
     clear_note(file_name)
     write_service_information(file_name, month, group)
     colorize_weekend(file_name, month)
+    return 'OK'
 
 
 def copy_sheet(file_name, base, month):

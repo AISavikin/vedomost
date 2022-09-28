@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 from calendar import Calendar
-from func import MONTH_DICT
+from func import MONTH_DICT, read_notes, save_notes
 from openpyxl import load_workbook
 
 lorem = """Lorem ipsum dolor  auctor, vestibulum lacinia velit. Sed dapibus vel dolor et semper.
@@ -9,19 +9,23 @@ lorem = """Lorem ipsum dolor  auctor, vestibulum lacinia velit. Sed dapibus vel 
 
 def notes_window(file_name: str):
     notes = read_notes(file_name)
+    l_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 1}
+    r_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 0}
 
-    n = [[sg.Text(day),
-          sg.Multiline(default_text=notes[day], size=(50, 6), key=day, no_scrollbar=True, auto_size_text=True)] for day
-         in notes]
+    l_col = [[sg.Text(day),
+              sg.Multiline(default_text=l_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in l_notes]
+
+    r_col = [[sg.Text(day),
+              sg.Multiline(default_text=r_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in r_notes]
 
     layout = [
-        [sg.Text(file_name)],
-        [sg.Column(n, scrollable=True, vertical_scroll_only=True, size_subsample_width=1, element_justification='r',
-                   size=(400, 600), key='column')],
-        [sg.Button('Сохранить')]
+        [sg.Text(file_name, font='Times_new_roman 21 bold'), sg.Button('Сохранить', font='Times_new_roman 17')],
+        [sg.Column(l_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
+         sg.Column(r_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
+         ],
     ]
 
-    window = sg.Window('Заметки', layout, element_justification='center', modal=True)
+    window = sg.Window('Заметки', layout, element_justification='center')
 
     while True:
         event, values = window.read()
@@ -30,62 +34,38 @@ def notes_window(file_name: str):
             break
 
         if event == 'Сохранить':
-            notes = {day: values[day] for day in values if day != 'file_name'}
-            save_notes(file_name, notes)
-            break
-
-
-def get_work_days(month, year=2022, wd=(2, 4)):
-    c = Calendar()
-    return [day[0] for day in c.itermonthdays2(year, month) if day[0] != 0 and day[1] in wd]
-
-
-def read_notes(file_name):
-    workbook = load_workbook(f'Ведомости/{file_name}')
-    ws = workbook['Заметки']
-    row = 1
-    notes = {}
-    while ws.cell(row=row, column=1).value:
-        notes[ws.cell(row=row, column=1).value] = ws.cell(row=row, column=2).value
-        row += 1
-    return notes
-
-
-def save_notes(file_name, notes):
-    file_name = f'Ведомости/{file_name}'
-    workbook = load_workbook(file_name)
-    ws = workbook['Заметки']
-    row = 1
-    for day in notes:
-        ws.cell(row=row, column=1).value = day
-        ws.cell(row=row, column=2).value = notes[day]
-
-    workbook.save(file_name)
-
-def write_service_information(file_name, month, group):
-    file_name = f'Ведомости/{file_name}'
-    work_book = load_workbook(file_name)
-    ws = work_book['Посещаемость']
-    ws['N3'].value = month
-    ws['AA42'].value = month
-    ws['C5'].value = group
-    ws = work_book['Заметки']
-    work_days = get_work_days(MONTH_DICT[month])
-    row = 1
-    for day in work_days:
-        ws.cell(row=row, column=1).value = day
-        row += 1
-
-
-    work_book.save(file_name)
-
+            if sg.Window("Добавить ещё", [[sg.Text("Ведомость !!! добавлена. Добавить ещё?")],
+                                          [sg.Yes(), sg.No()]], element_justification='c').read(close=True)[0] == "Yes":
+                continue
+            else:
+                break
+            # print(values)
+            # notes = {day: values[day] for day in sorted(values)}
+            # print(notes)
+            # notes = {key: notes[key] for key in sorted(notes)}
+            # save_notes(file_name, notes)
+            # break
+    window.close()
 
 def main():
-    print(get_work_days(9))
-    print(read_notes('Группа 1_Ноябрь.xlsx'))
-    write_service_information('Группа 1_Ноябрь.xlsx', 'Ноябрь', 'НАЗВАНИЕ ГРУППЫ')
+    notes_window('Группа 1_Октябрь.xlsx')
+    notes = read_notes('Группа 1_Октябрь.xlsx')
+    # l = {}
+    # r = {}
+    # for num, day in enumerate(notes, 1):
+    #     if num % 2 == 1:
+    #         l[day] = notes[day]
+    #     else:
+    #         r[day] = notes[day]
+    #
+    l = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 1}
+    r = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 0}
+    print(l)
+    key_l = sorted(l)
+    l = {key: l[key] for key in key_l}
+    print(l)
+    print(r)
+
 
 if __name__ == '__main__':
     main()
-    month = file_name.split('_')[-1][:-4]
-    work_days = get_work_days(MONTH_DICT[month])

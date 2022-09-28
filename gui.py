@@ -1,58 +1,5 @@
 import PySimpleGUI as sg
-
 from func import *
-
-def add_new_kids(file_name: str):
-    """
-    Создает окно для добавления новых детей в ведомость.
-
-    :param file_name: str: имя файла без расширения
-    """
-    # Получаем имена и фамилии детей в виде списка строк
-    kids = get_kids(file_name)
-
-    # Левая колонка
-    left_col = [
-        [sg.Text('Фамилия и имя')],
-        [sg.Input(key='name', focus=True, size=26)],
-        [sg.Button('Сохранить'), sg.Button('Исправить'), sg.Button('+')],
-        # [sg.Button('Удалить')]
-    ]
-    # Правая колонка
-    right_col = [
-        [sg.Text(file_name)],
-        [sg.Table(headings=['№', 'Имя'], values=list(enumerate(kids, 1)), key='table', col_widths=[7, 20],
-                  auto_size_columns=False, justification='center', size=(20, 15))]
-    ]
-
-    layout = [[sg.Column(left_col), sg.Column(right_col, element_justification='center')]]
-    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, modal=True, finalize=True)
-    window.bind("<Return>", "+")
-
-    while True:
-        event, values = window.read()
-        if event == sg.WINDOW_CLOSED:
-            break
-
-        if event == '+' and values['name']:
-            kids.append(values['name'])
-            window['name'].update('')
-            window['table'].update(values=enumerate(kids, 1))
-
-        if event == 'Исправить' and values['table']:
-            kids[values['table'][0]] = values['name']
-            window['table'].update(values=enumerate(kids, 1))
-            window['name'].update('')
-
-        # if event == 'Удалить':
-        #     kids.pop(values['table'][0])
-        #     window['table'].update(values=enumerate(kids, 1))
-
-        if event == 'Сохранить':
-            save_new_kids(file_name, kids)
-            break
-
-    window.close()
 
 
 def add_new_sheet(file_name: str, list_group: list):
@@ -96,9 +43,68 @@ def add_new_sheet(file_name: str, list_group: list):
 
             if not file_name and base == 'Новая группа':
                 sg.Popup('Введите название группы!', title='Ошибка')
+                continue
+            status = create_new_sheet(file_name, base, month)
 
-            if not create_new_sheet(file_name, base, month):
-                sg.Popup('Такая группа уже есть')
+            if status != 'OK':
+                sg.Popup('Такая группа уже есть', title='Ошибка')
+                continue
+            if sg.Window("Добавить ещё", [[sg.Text("Ведомость !!! добавлена. Добавить ещё?")], [sg.Yes(), sg.No()]],
+                         element_justification='c', modal=True).read(close=True)[0] == "Yes":
+                continue
+            else:
+                break
+
+    window.close()
+
+
+def add_new_kids(file_name: str):
+    """
+    Создает окно для добавления новых детей в ведомость.
+
+    :param file_name: str: имя файла без расширения
+    """
+    # Получаем имена и фамилии детей в виде списка строк
+    kids = get_kids(file_name)
+
+    # Левая колонка
+    left_col = [
+        [sg.Text('Фамилия и имя')],
+        [sg.Input(key='name', focus=True, size=26)],
+        [sg.Button('Сохранить'), sg.Button('Исправить'), sg.Button('+')],
+        # [sg.Button('Удалить')]
+    ]
+    # Правая колонка
+    right_col = [
+        [sg.Text(file_name)],
+        [sg.Table(headings=['№', 'Имя'], values=list(enumerate(kids, 1)), key='table', col_widths=[7, 20],
+                  auto_size_columns=False, justification='center', size=(20, 15))]
+    ]
+
+    layout = [[sg.Column(left_col), sg.Column(right_col, element_justification='center')]]
+    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, modal=True, finalize=True)
+    window.bind("<Return>", "+")
+
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED:
+            break
+
+        if event == '+' and values['name']:
+            kids.append(values['name'])
+            window['name'].update('')
+            window['table'].update(values=enumerate(kids, 1))
+
+        if event == 'Исправить' and values['table']:
+            if not values['name']:
+                sg.Popup('Введите имя!')
+                continue
+            kids[values['table'][0]] = values['name']
+            window['table'].update(values=enumerate(kids, 1))
+            window['name'].update('')
+
+        if event == 'Сохранить':
+            save_new_kids(file_name, kids)
             break
 
     window.close()
@@ -170,15 +176,20 @@ def check_kids(file_name: str):
 def notes_window(file_name: str):
     notes = read_notes(file_name)
 
-    n = [[sg.Text(day),
-          sg.Multiline(default_text=notes[day], size=(50, 6), key=day, no_scrollbar=True, auto_size_text=True)] for day
-         in notes]
+    l_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 1}
+    r_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 0}
+
+    l_col = [[sg.Text(day),
+              sg.Multiline(default_text=l_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in l_notes]
+
+    r_col = [[sg.Text(day),
+              sg.Multiline(default_text=r_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in r_notes]
 
     layout = [
-        [sg.Text(file_name)],
-        [sg.Column(n, scrollable=True, vertical_scroll_only=True, size_subsample_width=1, element_justification='r',
-                   size=(400, 600), key='column')],
-        [sg.Button('Сохранить')]
+        [sg.Text(file_name, font='Times_new_roman 21 bold'), sg.Button('Сохранить', font='Times_new_roman 17')],
+        [sg.Column(l_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
+         sg.Column(r_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
+         ],
     ]
 
     window = sg.Window('Заметки', layout, element_justification='center', modal=True)
@@ -190,9 +201,11 @@ def notes_window(file_name: str):
             break
 
         if event == 'Сохранить':
-            notes = {day: values[day] for day in values if day != 'file_name'}
-            save_notes(file_name, notes)
+            notes = {day: values[day] for day in sorted(values)}
             break
+
+    window.close()
+
 
 def main():
     pass
