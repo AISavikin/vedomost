@@ -139,7 +139,6 @@ def write_service_information(file_name, month, group):
     path = Path(Path.cwd(), 'Ведомости', file_name)
     work_book = load_workbook(path)
     ws = work_book['Посещаемость']
-    ws['W3'].value = YEAR[2:]
     ws['N3'].value = month
     ws['AA42'].value = month
     ws['C5'].value = group
