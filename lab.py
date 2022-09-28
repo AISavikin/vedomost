@@ -32,7 +32,9 @@ def settings_window():
             year = values['year']
 
         if event == 'Изменить шрифт':
+            window.disappear()
             font_family, font_size = change_font()
+            window.reappear()
 
         if event == 'Сохранить':
             theme = values['theme']

@@ -26,6 +26,7 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE, preview=False):
         default_val = ''
 
     layout = [
+        [sg.Menu([['Настройки', ['Параметры']]], font=(FONT_FAMILY, 12))],
         [sg.Text("Ведомости детский сад")],
         [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Добавить ученика')],
         [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
@@ -59,6 +60,11 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE, preview=False):
 
             if event == 'Заметки':
                 notes_window(values['file_name'])
+
+            if event == 'Параметры':
+                window.disappear()
+                settings_window()
+                window.reappear()
 
     window.close()
 
