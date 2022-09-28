@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 from openpyxl import load_workbook
 from conf import *
 
+
 def notes_window(file_name: str):
     notes = read_notes(file_name)
 
@@ -15,7 +16,7 @@ def notes_window(file_name: str):
               sg.Multiline(default_text=r_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in r_notes]
 
     layout = [
-        [sg.Text(file_name, font=(FONT_FAMILY, FONT_SIZE+5, 'underline')), sg.Button('Сохранить')],
+        [sg.Text(file_name, font=(FONT_FAMILY, FONT_SIZE + 5, 'underline')), sg.Button('Сохранить')],
         [sg.Column(l_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
          sg.Column(r_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
          ],
@@ -31,9 +32,11 @@ def notes_window(file_name: str):
 
         if event == 'Сохранить':
             notes = {day: values[day] for day in sorted(values)}
+            save_notes(file_name, notes)
             break
 
     window.close()
+
 
 def read_notes(file_name):
     workbook = load_workbook(f'Ведомости/{file_name}')

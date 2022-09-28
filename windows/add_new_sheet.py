@@ -7,7 +7,6 @@ from calendar import Calendar
 from pathlib import Path
 
 
-
 def add_new_sheet(file_name: str, list_group: list):
     """
     Создает окно для добавления новой ведомости
@@ -57,7 +56,8 @@ def add_new_sheet(file_name: str, list_group: list):
             if not status:
                 sg.Popup('Такая группа уже есть', title='Ошибка')
                 continue
-            if sg.Window("Добавить ещё", [[sg.Text(f"Ведомость {status} добавлена. Добавить ещё?")], [sg.Yes(), sg.No()]],
+            if sg.Window("Добавить ещё",
+                         [[sg.Text(f"Ведомость {status} добавлена. Добавить ещё?")], [sg.Yes(), sg.No()]],
                          element_justification='c', modal=True).read(close=True)[0] == "Yes":
                 continue
             else:
@@ -95,7 +95,7 @@ def copy_sheet(file_name, base, month):
 
 
 def clear_note(file_name):
-    path = Path(Path.cwd(),'Ведомости', file_name)
+    path = Path(Path.cwd(), 'Ведомости', file_name)
     wb = load_workbook(path)
     ws = wb['Заметки']
     cells = 'A1:A20'
@@ -135,11 +135,11 @@ def colorize_weekend(file_name, month):
     work_book.save(path)
 
 
-
 def write_service_information(file_name, month, group):
     path = Path(Path.cwd(), 'Ведомости', file_name)
     work_book = load_workbook(path)
     ws = work_book['Посещаемость']
+    ws['W3'].value = YEAR[2:]
     ws['N3'].value = month
     ws['AA42'].value = month
     ws['C5'].value = group

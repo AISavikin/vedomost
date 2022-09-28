@@ -1,8 +1,9 @@
 import PySimpleGUI as sg
 from pathlib import Path
 from openpyxl import load_workbook
-from utils import get_kids, get_work_days, MONTH_DICT, date
+from utils import get_kids, get_work_days, date
 from conf import *
+
 
 def mark_kids(file_name: str):
     """
@@ -65,6 +66,7 @@ def mark_kids(file_name: str):
                 break
 
     window.close()
+
 
 def mark_absent(file_name, day, absent):
     path = Path(Path.cwd(), 'Ведомости', file_name)

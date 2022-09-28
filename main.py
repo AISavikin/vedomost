@@ -1,4 +1,3 @@
-# from gui import *
 from loguru import logger
 import locale
 import os
@@ -15,6 +14,7 @@ from windows.settings import settings_window
 locale.setlocale(locale.LC_ALL, 'ru-RU')
 
 sg.theme(THEME)
+
 
 def check_directory():
     if not os.path.exists('Ведомости'):
