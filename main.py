@@ -2,18 +2,18 @@ from gui import *
 from loguru import logger
 import locale
 import os
+from conf import *
 
 locale.setlocale(locale.LC_ALL, 'ru-RU')
 
-sg.theme('DarkTeal10')
-
+sg.theme(THEME)
 
 def check_directory():
     if not os.path.exists('Ведомости'):
         os.mkdir('Ведомости')
 
 
-def main_window():
+def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE, preview=False):
     # Основное окно приложения, само по себе ничего не делает, по сути навигационное меню.
     # Единственное значение которое можно передать дальше название группы
 
@@ -33,25 +33,32 @@ def main_window():
         [sg.Button('Заметки', expand_x=True)]
     ]
 
-    window = sg.Window('Ведомости', layout, element_justification='center')
-    while True:
-        event, values = window.read()
-        if event == sg.WINDOW_CLOSED:
-            break
+    window = sg.Window('Ведомости', layout, element_justification='center', font=(font_family, font_size))
 
-        if event == 'Добавить ученика':
-            add_new_kids(values['file_name'])
+    if preview:
+        while True:
+            event, values = window.read()
+            if event == sg.WINDOW_CLOSED:
+                break
+    else:
+        while True:
+            event, values = window.read()
+            if event == sg.WINDOW_CLOSED:
+                break
 
-        if event == 'Добавить ведомость':
-            add_new_sheet(values['file_name'], list_group)
-            list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
-            window['file_name'].update(values=list_group, set_to_index=0)
+            if event == 'Добавить ученика':
+                add_new_kids(values['file_name'])
 
-        if event == 'Отметить':
-            check_kids(values['file_name'])
+            if event == 'Добавить ведомость':
+                add_new_sheet(values['file_name'], list_group)
+                list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
+                window['file_name'].update(values=list_group, set_to_index=0)
 
-        if event == 'Заметки':
-            notes_window(values['file_name'])
+            if event == 'Отметить':
+                check_kids(values['file_name'])
+
+            if event == 'Заметки':
+                notes_window(values['file_name'])
 
     window.close()
 

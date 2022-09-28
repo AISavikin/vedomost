@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 from func import *
+from conf import *
 
 
 def add_new_sheet(file_name: str, list_group: list):
@@ -28,7 +29,7 @@ def add_new_sheet(file_name: str, list_group: list):
         [sg.Button('Добавить ведомость', key='add'), sg.Button('Отмена')]
     ]
 
-    window = sg.Window('Добавить новую ведомость', layout, element_justification='center', modal=True)
+    window = sg.Window('Добавить новую ведомость', layout, element_justification='center', modal=True, font=(FONT_FAMILY, FONT_SIZE))
 
     while True:
         event, values = window.read()
@@ -82,7 +83,7 @@ def add_new_kids(file_name: str):
     ]
 
     layout = [[sg.Column(left_col), sg.Column(right_col, element_justification='center')]]
-    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, modal=True, finalize=True)
+    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, modal=True, finalize=True, font=(FONT_FAMILY, FONT_SIZE))
     window.bind("<Return>", "+")
 
     while True:
@@ -138,7 +139,7 @@ def check_kids(file_name: str):
     ]
 
     window = sg.Window('Отметить ученика', layout, finalize=True, element_justification='center',
-                       return_keyboard_events=True)
+                       return_keyboard_events=True, font=(FONT_FAMILY, FONT_SIZE))
     # При фокусе на кнопке с ключом "Отметить", нажатие Enter генерирует событие "Отметить_Enter"
     window['Отметить'].bind("<Return>", "_Enter")
 
@@ -186,13 +187,13 @@ def notes_window(file_name: str):
               sg.Multiline(default_text=r_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in r_notes]
 
     layout = [
-        [sg.Text(file_name, font='Times_new_roman 21 bold'), sg.Button('Сохранить', font='Times_new_roman 17')],
+        [sg.Text(file_name, font=(FONT_FAMILY, FONT_SIZE+5, 'underline')), sg.Button('Сохранить')],
         [sg.Column(l_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
          sg.Column(r_col, scrollable=False, size_subsample_width=1, element_justification='r', size_subsample_height=1),
          ],
     ]
 
-    window = sg.Window('Заметки', layout, element_justification='center', modal=True)
+    window = sg.Window('Заметки', layout, element_justification='center', modal=True, font=(FONT_FAMILY, FONT_SIZE))
 
     while True:
         event, values = window.read()

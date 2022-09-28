@@ -1,0 +1,4 @@
+YEAR = 2022
+FONT_FAMILY = "Times New Roman"
+FONT_SIZE = 16
+THEME = "DarkTeal10"
