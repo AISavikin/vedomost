@@ -10,10 +10,12 @@ def notes_window(file_name: str):
     r_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 0}
 
     l_col = [[sg.Text(day),
-              sg.Multiline(default_text=l_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in l_notes]
+              sg.Multiline(default_text=l_notes[day], size=(50, 6), key=day,
+                           no_scrollbar=True, font=(FONT_FAMILY, FONT_SIZE-3))] for day in l_notes]
 
     r_col = [[sg.Text(day),
-              sg.Multiline(default_text=r_notes[day], size=(50, 6), key=day, no_scrollbar=True)] for day in r_notes]
+              sg.Multiline(default_text=r_notes[day], size=(50, 6), key=day,
+                           no_scrollbar=True, font=(FONT_FAMILY, FONT_SIZE-3))] for day in r_notes]
 
     layout = [
         [sg.Text(file_name, font=(FONT_FAMILY, FONT_SIZE + 5, 'underline')), sg.Button('Сохранить')],
@@ -22,7 +24,7 @@ def notes_window(file_name: str):
          ],
     ]
 
-    window = sg.Window('Заметки', layout, element_justification='center', font=(FONT_FAMILY, FONT_SIZE))
+    window = sg.Window('Заметки', layout, element_justification='center', font=(FONT_FAMILY, FONT_SIZE), resizable=True)
 
     while True:
         event, values = window.read()

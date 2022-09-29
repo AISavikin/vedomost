@@ -9,7 +9,7 @@ def main_window_preview(font_family, font_size):
         [sg.Menu([['Настройки', ['Параметры']]], font=(FONT_FAMILY, 12))],
         [sg.Text("Ведомости детский сад")],
         [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Добавить ученика')],
-        [sg.Combo(['Группа 1', 'Группа 2'], expand_x=True, default_value=default_val, key='file_name', readonly=True),
+        [sg.Combo(['Группа 1', 'Группа 2'], expand_x=True, default_value='Группа 1', key='file_name', readonly=True),
          sg.Button('Отметить')],
         [sg.Button('Заметки', expand_x=True)]
     ]
