@@ -5,7 +5,7 @@ from conf import *
 from pathlib import Path
 
 
-def kids(file_name: str):
+def kids_window(file_name: str):
     """
     Создает окно для добавления новых детей в ведомость.
 
