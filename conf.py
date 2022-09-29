@@ -1,4 +1,4 @@
-YEAR = 2022
+YEAR = (2022, 2023)
 FONT_FAMILY = "Calibri"
-FONT_SIZE = 17
+FONT_SIZE = 15
 THEME = "DarkTeal10"

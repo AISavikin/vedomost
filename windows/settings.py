@@ -1,24 +1,15 @@
 import PySimpleGUI as sg
 from conf import *
+from pathlib import Path
 
 
 def main_window_preview(font_family, font_size):
-    # Основное окно приложения, само по себе ничего не делает, по сути навигационное меню.
-    # Единственное значение которое можно передать дальше название группы
-
-    # Собираем файлы ведомостей, для добавления в выпадающий список, если файлов нет, создается пустой список
-    try:
-        list_group = ['Группа 1', 'Группа 2']
-        default_val = list_group[0]
-    except IndexError:
-        list_group = []
-        default_val = ''
 
     layout = [
         [sg.Menu([['Настройки', ['Параметры']]], font=(FONT_FAMILY, 12))],
         [sg.Text("Ведомости детский сад")],
         [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Добавить ученика')],
-        [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
+        [sg.Combo(['Группа 1', 'Группа 2'], expand_x=True, default_value=default_val, key='file_name', readonly=True),
          sg.Button('Отметить')],
         [sg.Button('Заметки', expand_x=True)]
     ]
@@ -36,8 +27,10 @@ def main_window_preview(font_family, font_size):
 def settings_window():
     year, font_family, font_size, theme = YEAR, FONT_FAMILY, FONT_SIZE, THEME
 
+    combo_list = [(2022, 2023), (2023, 2024), (2024, 2025), (2025, 2026), (2026, 2027), (2027, 2028), (2028, 2029),
+                  (2029, 2030)]
     layout = [
-        [sg.Text('Год:'), sg.Combo(list(range(2022, 2031)), default_value=year, enable_events=True, k='year')],
+        [sg.Text('Год:'), sg.Combo(combo_list, default_value=year, enable_events=True, k='year')],
         [sg.Text('Тема: '), sg.Combo(sg.theme_list(), default_value=theme, k='theme')],
         [sg.Button('Предпросмотр темы', expand_x=True)],
         [sg.Button('Изменить шрифт', expand_x=True)],
@@ -65,7 +58,7 @@ def settings_window():
 
         if event == 'Сохранить':
             theme = values['theme']
-            with open('conf.py', 'w') as f:
+            with open(Path(Path.cwd(), 'conf.py'), 'w') as f:
                 f.write(f'YEAR = {year}\nFONT_FAMILY = "{font_family}"\nFONT_SIZE = {font_size}\nTHEME = "{theme}"')
             sg.Popup('Настройки применятся после перезапуска')
             break
@@ -88,7 +81,6 @@ def change_font():
     window = sg.Window('Смена шрифта', layout, font=(FONT_FAMILY, FONT_SIZE), size=(900, 300))
     while True:
         event, values = window.read()
-
         if event == sg.WINDOW_CLOSED:
             break
 
@@ -105,3 +97,7 @@ def change_font():
 
     window.close()
     return font_family, font_size
+
+
+if __name__ == '__main__':
+    settings_window()

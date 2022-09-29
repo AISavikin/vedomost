@@ -29,7 +29,7 @@ def add_new_kids(file_name: str):
     ]
 
     layout = [[sg.Column(left_col), sg.Column(right_col, element_justification='center')]]
-    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, modal=True, finalize=True,
+    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, finalize=True,
                        font=(FONT_FAMILY, FONT_SIZE))
     window.bind("<Return>", "+")
 

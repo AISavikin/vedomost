@@ -22,7 +22,7 @@ def notes_window(file_name: str):
          ],
     ]
 
-    window = sg.Window('Заметки', layout, element_justification='center', modal=True, font=(FONT_FAMILY, FONT_SIZE))
+    window = sg.Window('Заметки', layout, element_justification='center', font=(FONT_FAMILY, FONT_SIZE))
 
     while True:
         event, values = window.read()

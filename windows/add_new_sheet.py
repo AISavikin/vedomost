@@ -18,13 +18,11 @@ def add_new_sheet(file_name: str, list_group: list):
         list_group.append('Новая группа')
 
     left = [
-        [sg.Text('Год:')],
         [sg.Text('На основе')],
         [sg.Text('Название ведомости')],
         [sg.Text('Месяц')]
     ]
     right = [
-        [sg.Combo(list(range(2022, 2031)), readonly=True, default_value=YEAR)],
         [sg.Combo(list_group, size=(18, 0), key='base', default_value=file_name, readonly=True)],
         [sg.Input(size=(18, 0), key='file_name')],
         [sg.Combo(list(MONTH_DICT.keys()), size=(18, 0), key='month', default_value=f'{date:%B}', readonly=True)]
@@ -34,8 +32,7 @@ def add_new_sheet(file_name: str, list_group: list):
         [sg.Button('Добавить ведомость', key='add'), sg.Button('Отмена')]
     ]
 
-    window = sg.Window('Добавить новую ведомость', layout, element_justification='center', modal=True,
-                       font=(FONT_FAMILY, FONT_SIZE))
+    window = sg.Window('Добавить новую ведомость', layout, element_justification='c', font=(FONT_FAMILY, FONT_SIZE))
 
     while True:
         event, values = window.read()
@@ -126,7 +123,7 @@ def colorize_weekend(file_name, month):
     path = Path(Path.cwd(), 'Ведомости', file_name)
     work_book = load_workbook(path)
     ws = work_book['Посещаемость']
-    weekends = [day[0] for day in Calendar().itermonthdays2(YEAR, MONTH_DICT[month]) if
+    weekends = [day[0] for day in Calendar().itermonthdays2(MONTH_DICT[month][1], MONTH_DICT[month][0]) if
                 day[0] != 0 and day[1] in (5, 6)]
     for row in range(16, 39):
         for col in weekends:
@@ -142,6 +139,8 @@ def write_service_information(file_name, month, group):
     ws['N3'].value = month
     ws['AA42'].value = month
     ws['C5'].value = group
+    ws['V3'].value = MONTH_DICT[month][1]
+    ws['AG42'].value = MONTH_DICT[month][1]
     ws = work_book['Заметки']
     work_days = get_work_days(month)
     row = 1
@@ -149,4 +148,9 @@ def write_service_information(file_name, month, group):
         ws.cell(row=row, column=1).value = day
         row += 1
     work_book.save(path)
+
+
 # endregion
+
+if __name__ == '__main__':
+    pass
