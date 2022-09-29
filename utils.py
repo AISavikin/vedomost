@@ -20,7 +20,7 @@ def get_work_days(month):
 
 def get_kids(path):
     """
-    :param file_name: Относительный путь к файлу
+    :param path: Относительный путь к файлу
     :return: Список строк с именами детей
     """
     wb = load_workbook(path)

@@ -1,21 +1,25 @@
 import PySimpleGUI as sg
 from openpyxl import load_workbook
 from conf import *
-
+from pathlib import Path
 
 def notes_window(file_name: str):
-    notes = read_notes(file_name)
+
+    path = Path(Path.cwd(), 'Ведомости', file_name)
+
+    notes = read_notes(path)
+
 
     l_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 1}
     r_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 0}
 
     l_col = [[sg.Text(day),
               sg.Multiline(default_text=l_notes[day], size=(50, 6), key=day,
-                           no_scrollbar=True, font=(FONT_FAMILY, FONT_SIZE-3))] for day in l_notes]
+                           no_scrollbar=True, font=(FONT_FAMILY, FONT_SIZE))] for day in l_notes]
 
     r_col = [[sg.Text(day),
               sg.Multiline(default_text=r_notes[day], size=(50, 6), key=day,
-                           no_scrollbar=True, font=(FONT_FAMILY, FONT_SIZE-3))] for day in r_notes]
+                           no_scrollbar=True, font=(FONT_FAMILY, FONT_SIZE))] for day in r_notes]
 
     layout = [
         [sg.Text(file_name, font=(FONT_FAMILY, FONT_SIZE + 5, 'underline')), sg.Button('Сохранить')],
@@ -34,14 +38,14 @@ def notes_window(file_name: str):
 
         if event == 'Сохранить':
             notes = {day: values[day] for day in sorted(values)}
-            save_notes(file_name, notes)
+            save_notes(path, notes)
             break
 
     window.close()
 
 
-def read_notes(file_name):
-    workbook = load_workbook(f'Ведомости/{file_name}')
+def read_notes(path):
+    workbook = load_workbook(path)
     ws = workbook['Заметки']
     row = 1
     notes = {}
@@ -55,9 +59,8 @@ def read_notes(file_name):
     return notes
 
 
-def save_notes(file_name, notes):
-    file_name = f'Ведомости/{file_name}'
-    workbook = load_workbook(file_name)
+def save_notes(path, notes):
+    workbook = load_workbook(path)
     ws = workbook['Заметки']
     row = 1
     for day in notes:
@@ -65,4 +68,4 @@ def save_notes(file_name, notes):
         ws.cell(row=row, column=2).value = notes[day]
         row += 1
 
-    workbook.save(file_name)
+    workbook.save(path)

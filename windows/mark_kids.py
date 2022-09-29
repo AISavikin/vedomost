@@ -13,8 +13,10 @@ def mark_kids(file_name: str):
     month = file_name.split('_')[-1][:-5]
     work_days = get_work_days(month)
 
+    path = Path(Path.cwd(), 'Ведомости', file_name)
+
     # Получаем список детей из файла Excel
-    kids = get_kids(file_name)
+    kids = get_kids(path)
     # Левая колонка: текстовые виджеты с именами детей из списка kids
     left_col = [[sg.Text(kid)] for kid in kids]
     # Правая колонка с пустыми инпутами, пронумерованные от нуля
@@ -62,14 +64,13 @@ def mark_kids(file_name: str):
             if not all(absent):
                 sg.Popup('Вы отметили не всех!')
             else:
-                mark_absent(file_name, values['date'], absent)
+                mark_absent(path, values['date'], absent)
                 break
 
     window.close()
 
 
-def mark_absent(file_name, day, absent):
-    path = Path(Path.cwd(), 'Ведомости', file_name)
+def mark_absent(path, day, absent):
     work_book = load_workbook(path)
     ws = work_book['Посещаемость']
     column = int(day) + 4
