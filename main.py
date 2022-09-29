@@ -5,7 +5,7 @@ from conf import *
 
 import PySimpleGUI as sg
 
-from windows.add_kids import add_new_kids
+from windows.kids_window import kids_window
 from windows.add_new_sheet import add_new_sheet
 from windows.mark_kids import mark_kids
 from windows.notes import notes_window
@@ -36,7 +36,7 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
     layout = [
         [sg.Menu([['Настройки', ['Параметры']]], font=(FONT_FAMILY, 12))],
         [sg.Text("Ведомости детский сад")],
-        [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Добавить ученика')],
+        [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Ученики', expand_x=True)],
         [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
          sg.Button('Отметить')],
         [sg.Button('Заметки', expand_x=True)]
@@ -49,9 +49,9 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
         if event == sg.WINDOW_CLOSED:
             break
 
-        if event == 'Добавить ученика':
+        if event == 'Ученики':
             window.disappear()
-            add_new_kids(values['file_name'])
+            kids_window(values['file_name'])
             window.reappear()
 
         if event == 'Добавить ведомость':

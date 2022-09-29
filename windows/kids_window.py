@@ -11,15 +11,19 @@ def kids_window(file_name: str):
 
     :param file_name: str: имя файла без расширения
     """
+    # Путь к файлу
+    path = Path(Path.cwd(), 'Ведомости', file_name)
+
     # Получаем имена и фамилии детей в виде списка строк
-    kids = get_kids(file_name)
+
+    kids = get_kids(path)
 
     # Левая колонка
     left_col = [
         [sg.Text('Фамилия и имя')],
-        [sg.Input(key='name', focus=True, size=26)],
-        [sg.Button('Сохранить'), sg.Button('Исправить'), sg.Button('+')],
-        # [sg.Button('Удалить')]
+        [sg.Input(key='name', focus=True, size=29)],
+        [sg.Button('Добавить'), sg.Button('Удалить'), sg.Button('Исправить')],
+        [sg.Button('Сохранить', expand_x=True)],
     ]
     # Правая колонка
     right_col = [
@@ -28,17 +32,17 @@ def kids_window(file_name: str):
                   auto_size_columns=False, justification='center', size=(20, 15))]
     ]
 
-    layout = [[sg.Column(left_col), sg.Column(right_col, element_justification='center')]]
+    layout = [[sg.Column(left_col, element_justification='c'), sg.Column(right_col, element_justification='c')]]
     window = sg.Window(f'Добавить ученика в группу {file_name}', layout, finalize=True,
                        font=(FONT_FAMILY, FONT_SIZE))
-    window.bind("<Return>", "+")
+    window.bind("<Return>", "Добавить")
 
     while True:
         event, values = window.read()
         if event == sg.WINDOW_CLOSED:
             break
 
-        if event == '+' and values['name']:
+        if event == 'Добавить' and values['name']:
             kids.append(values['name'])
             window['name'].update('')
             window['table'].update(values=enumerate(kids, 1))
@@ -51,22 +55,29 @@ def kids_window(file_name: str):
             window['table'].update(values=enumerate(kids, 1))
             window['name'].update('')
 
+        if event == 'Удалить':
+            kid = values['table'][0]
+            kids.pop(kid)
+            window['table'].update(values=enumerate(kids, 1))
+            window['name'].update('')
+
         if event == 'Сохранить':
-            save_new_kids(file_name, kids)
+            save_new_kids(path, kids)
             break
 
     window.close()
 
 
-def save_new_kids(file_name, kids):
-    path = Path(Path.cwd(), 'Ведомости', file_name)
+def save_new_kids(path, kids):
     work_book = load_workbook(path)
     ws = work_book['Посещаемость']
     cells = 'B16:B38'
-
-    for i in ws[cells]:
-        i[0].value = ''
+    kids += ['' for _ in range(23 - len(kids))]
 
     for i in range(len(kids)):
         ws[cells][i][0].value = kids[i]
     work_book.save(path)
+
+
+if __name__ == '__main__':
+    pass

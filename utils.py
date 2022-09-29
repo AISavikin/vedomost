@@ -18,12 +18,11 @@ def get_work_days(month):
             if day[0] != 0 and day[1] in wd]
 
 
-def get_kids(file_name):
+def get_kids(path):
     """
     :param file_name: Относительный путь к файлу
     :return: Список строк с именами детей
     """
-    path = Path(Path().cwd(), 'Ведомости', file_name)
     wb = load_workbook(path)
     ws = wb['Посещаемость']
     names = ws['B16:B38']
