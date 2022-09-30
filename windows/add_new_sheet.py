@@ -106,11 +106,12 @@ def clear_note(path):
 
 def clear_absent(path):
     # Очищает ячейки от "н, б"
-    # 16 - 39 диапазон строк, 5 - 36 диапазон столбцов
+    # 16 - 39 диапазон строк, 5 - 39 диапазон столбцов
     work_book = load_workbook(path)
     ws = work_book['Посещаемость']
+    ws['C7'].value = ''
     for row in range(16, 39):
-        for col in range(5, 36):
+        for col in range(5, 39):
             ws.cell(row=row, column=col).value = ''
             ws.cell(row=row, column=col).fill = styles.PatternFill()
 
