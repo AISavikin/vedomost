@@ -4,6 +4,7 @@ from calendar import Calendar
 from conf import *
 from pathlib import Path
 import shutil
+import os
 
 MONTH_DICT = {
     'Сентябрь': (9, YEAR[0]), 'Октябрь': (10, YEAR[0]), 'Ноябрь': (11, YEAR[0]), 'Декабрь': (12, YEAR[0]),
@@ -21,7 +22,7 @@ def get_work_days(month):
 
 def get_kids(path):
     """
-    :param path: Относительный путь к файлу
+    :param path: Относительный путь к файлу.
     :return: Список строк с именами детей
     """
     wb = load_workbook(path)
@@ -129,6 +130,25 @@ def close_sheet(path):
     wb.save(path)
 
 
+def move_to_archive(path, month):
+    if not os.path.exists('Ведомости/Архив'):
+        os.mkdir('Ведомости/Архив')
+    if not os.path.exists(f'Ведомости/Архив/{month}'):
+        os.mkdir(f'Ведомости/Архив/{month}')
+    shutil.move(path, Path('Ведомости', 'Архив', month, path.name))
+
+
+def close_all_sheets():
+    months = list(MONTH_DICT.keys())
+    files = [file for file in Path('Ведомости').iterdir() if file.is_file() and file.name.endswith('.xlsx')]
+    for file in files:
+        month = file.name.split('_')[-1][:-5]
+        close_sheet(file)
+        if month != "Май":
+            new_month = months[months.index(month) + 1]
+            create_new_sheet('', file.name, new_month)
+            move_to_archive(file, month)
+
+
 if __name__ == '__main__':
-    path = Path('Ведомости', 'Группа 1_Сентябрь.xlsx')
-    close_sheet(path)
+    close_all_sheets()
