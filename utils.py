@@ -1,5 +1,4 @@
 from openpyxl import load_workbook
-from pathlib import Path
 from datetime import datetime
 from calendar import Calendar
 from conf import *
@@ -9,7 +8,7 @@ MONTH_DICT = {
     'Январь': (1, YEAR[1]), 'Февраль': (2, YEAR[1]), 'Март': (3, YEAR[1]), 'Апрель': (4, YEAR[1]), 'Май': (5, YEAR[1])
 }
 
-date = datetime.now()
+date = datetime.now()  # Переменная используется в других модулях
 
 
 def get_work_days(month):
