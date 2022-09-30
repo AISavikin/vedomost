@@ -116,5 +116,19 @@ def write_service_information(path, month, group):
 
 # endregion
 
+
+def close_sheet(path):
+    wb = load_workbook(path)
+    ws = wb['Посещаемость']
+    kids = get_kids(path)
+    absents = [[cell.value for cell in ws["E16:AI38"][kid]] for kid in range(len(kids))]
+    ws['C7'].value = len([day for day in absents[0] if day])
+    for kid in range(len(kids)):
+        ws['AJ16:AL38'][kid][0].value = absents[kid].count('н')
+        ws['AJ16:AL38'][kid][2].value = absents[kid].count('б')
+    wb.save(path)
+
+
 if __name__ == '__main__':
-    pass
+    path = Path('Ведомости', 'Группа 1_Сентябрь.xlsx')
+    close_sheet(path)
