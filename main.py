@@ -2,7 +2,6 @@ from loguru import logger
 import locale
 import os
 from conf import *
-
 import PySimpleGUI as sg
 
 from windows.kids_window import kids_window
@@ -10,6 +9,7 @@ from windows.add_new_sheet import add_new_sheet
 from windows.mark_kids import mark_kids
 from windows.notes import notes_window
 from windows.settings import settings_window
+from utils import close_all_sheets
 
 locale.setlocale(locale.LC_ALL, 'ru-RU')
 
@@ -39,6 +39,7 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
         [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Ученики', expand_x=True)],
         [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
          sg.Button('Отметить')],
+        [sg.Button('Закрыть ведомости', expand_x=True)],
         [sg.Button('Заметки', expand_x=True)]
     ]
 
@@ -70,6 +71,9 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
             window.disappear()
             notes_window(values['file_name'])
             window.reappear()
+
+        if event == 'Закрыть ведомости':
+            close_all_sheets()
 
         if event == 'Параметры':
             window.disappear()
