@@ -3,6 +3,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 from utils import get_kids, get_work_days, date
 from conf import *
+from loguru import logger
 
 
 def mark_kids(file_name: str):
@@ -61,6 +62,7 @@ def mark_kids(file_name: str):
 
         if event == 'Отметить' or event == 'Отметить_Enter':
             absent = [values[i] for i in range(len(kids))]
+            logger.info({k: v for k in kids for v in absent})
             if not all(absent):
                 sg.Popup('Вы отметили не всех!')
             else:
