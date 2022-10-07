@@ -73,7 +73,10 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
             window.reappear()
 
         if event == 'Закрыть ведомости':
-            close_all_sheets()
+            if sg.Window('Вы уверены?', [
+                [sg.Text('Закрывать ведомости нужно только в конце месяца!'), sg.Button('Да'), sg.Button('Отмена')]
+            ]).read(close=True)[0] == 'Да':
+                close_all_sheets()
 
         if event == 'Параметры':
             window.disappear()
