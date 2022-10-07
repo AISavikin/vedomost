@@ -86,7 +86,8 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
     window.close()
 
 
-logger.add('debug.log')
+logger.add('debug.log', level='ERROR')
+logger.add('absents.log', level='INFO')
 
 
 @logger.catch()

@@ -3,12 +3,11 @@ from openpyxl import load_workbook
 from conf import *
 from pathlib import Path
 
-def notes_window(file_name: str):
 
+def notes_window(file_name: str):
     path = Path(Path.cwd(), 'Ведомости', file_name)
 
     notes = read_notes(path)
-
 
     l_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 1}
     r_notes = {day: notes[day] for num, day in enumerate(notes, 1) if num % 2 == 0}
