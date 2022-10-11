@@ -29,7 +29,7 @@ def mark_kids(file_name: str):
         [sg.Text(f'{file_name}')],
         [sg.Frame('Дата',
                   [[sg.Text('Число: '),
-                    sg.Combo(work_days, default_value=f'{date:%d}', k='date'),
+                    sg.Combo(work_days, default_value=f'{date:%d}', k='date', enable_events=True),
                     sg.Text(month)]])],
         [sg.Column(left_col), sg.Column(right_col)],
         [sg.Button('Отметить')]
@@ -47,6 +47,8 @@ def mark_kids(file_name: str):
         focus = window.find_element_with_focus()
         prev_focus = focus.get_previous_focus()
         next_focus = focus.get_next_focus()
+        if event == 'date':
+            get_absent(path, values['date'], kids, window)
 
         if event == 'Right:39' and type(focus) == sg.PySimpleGUI.Input:
             focus.update('б')
@@ -64,10 +66,10 @@ def mark_kids(file_name: str):
             absent = [values[i] for i in range(len(kids))]
             logger.info({k: v for k in kids for v in absent})
             if not all(absent):
-                sg.Popup('Вы отметили не всех!')
-            else:
-                mark_absent(path, values['date'], absent)
-                break
+                if sg.PopupYesNo('Вы отметили не всех! Сохранить?') == 'No':
+                    continue
+            mark_absent(path, values['date'], absent)
+            break
 
     window.close()
 
@@ -80,3 +82,14 @@ def mark_absent(path, day, absent):
         ws.cell(row=row + 16, column=column).value = absent[row]
 
     work_book.save(path)
+
+def get_absent(path, day, kids, window):
+    work_book = load_workbook(path)
+    ws = work_book['Посещаемость']
+    column = int(day) + 4
+    for i in range(len(kids)):
+        if not ws.cell(row=i + 16, column=column).value:
+            window[i].Update('')
+            continue
+        window[i].Update(ws.cell(row=i + 16, column=column).value)
+
