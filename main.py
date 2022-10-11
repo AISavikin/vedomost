@@ -74,7 +74,8 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
 
         if event == 'Закрыть ведомости':
             if sg.Window('Вы уверены?', [
-                [sg.Text('Закрывать ведомости нужно только в конце месяца!'), sg.Button('Да'), sg.Button('Отмена')]
+                [sg.Text('Закрывать ведомости нужно только в конце месяца!', font=(FONT_FAMILY, 35)),
+                 sg.Button('Да', font=(FONT_FAMILY, 35)), sg.Button('Отмена', font=(FONT_FAMILY, 35))]
             ]).read(close=True)[0] == 'Да':
                 close_all_sheets()
 
