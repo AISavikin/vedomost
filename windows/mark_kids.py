@@ -18,10 +18,12 @@ def mark_kids(file_name: str):
 
     # Получаем список детей из файла Excel
     kids = get_kids(path)
+    # Получаем отсутствующих
+    absent = get_absent(path, f'{date:%d}', kids)
     # Левая колонка: текстовые виджеты с именами детей из списка kids
     left_col = [[sg.Text(kid)] for kid in kids]
     # Правая колонка с пустыми инпутами, пронумерованные от нуля
-    right_col = [[sg.Input(size=(2, 1), key=i)] for i in range(len(kids))]
+    right_col = [[sg.Input(size=(2, 1), key=i, default_text=absent[i])] for i in range(len(kids))]
     # Устанавливаем фокус на первого ребенка
     right_col[0][0].Focus = True
 
@@ -48,8 +50,9 @@ def mark_kids(file_name: str):
         prev_focus = focus.get_previous_focus()
         next_focus = focus.get_next_focus()
         if event == 'date':
-            get_absent(path, values['date'], kids, window)
-
+            absent = get_absent(path, values['date'], kids)
+            for i in range(len(absent)):
+                window[i].Update(absent[i])
         if event == 'Right:39' and type(focus) == sg.PySimpleGUI.Input:
             focus.update('б')
 
@@ -66,7 +69,9 @@ def mark_kids(file_name: str):
             absent = [values[i] for i in range(len(kids))]
             logger.info({k: v for k in kids for v in absent})
             if not all(absent):
-                if sg.PopupYesNo('Вы отметили не всех! Сохранить?') == 'No':
+                if sg.Window('Вы уверены?', [
+                    [sg.Text('Вы отметили не всех! Сохранить?'), sg.Button('Да'),
+                     sg.Button('Нет')]]).read(close=True)[0] == 'Нет':
                     continue
             mark_absent(path, values['date'], absent)
             break
@@ -83,13 +88,15 @@ def mark_absent(path, day, absent):
 
     work_book.save(path)
 
-def get_absent(path, day, kids, window):
+def get_absent(path, day, kids):
+    absent = []
     work_book = load_workbook(path)
     ws = work_book['Посещаемость']
     column = int(day) + 4
     for i in range(len(kids)):
         if not ws.cell(row=i + 16, column=column).value:
-            window[i].Update('')
+            absent.append('')
             continue
-        window[i].Update(ws.cell(row=i + 16, column=column).value)
+        absent.append(ws.cell(row=i + 16, column=column).value)
+    return absent
 
