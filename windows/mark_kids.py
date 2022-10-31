@@ -63,7 +63,10 @@ def mark_kids(file_name: str):
             prev_focus.set_focus()
 
         if event == 'Down:40':
-            next_focus.set_focus()
+            if type(focus) is sg.PySimpleGUI.Button:
+                pass
+            else:
+                next_focus.set_focus()
 
         if event == 'Отметить' or event == 'Отметить_Enter':
             absent = [values[i] for i in range(len(kids))]

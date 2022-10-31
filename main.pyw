@@ -17,6 +17,7 @@ sg.theme(THEME)
 
 
 def check_directory():
+    """Проверяет существует ли директория, и создает если необходимо"""
     if not os.path.exists('Ведомости'):
         os.mkdir('Ведомости')
 
