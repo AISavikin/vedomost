@@ -3,7 +3,7 @@ import locale
 import os
 from conf import *
 import PySimpleGUI as sg
-from database import create_database
+from database import create_database, Student
 
 from windows.kids_window import kids_window
 from windows.add_new_sheet import add_new_sheet
@@ -12,7 +12,7 @@ from windows.notes import notes_window
 from windows.settings import settings_window
 from utils import close_all_sheets
 
-locale.setlocale(locale.LC_ALL, 'ru-RU')
+# locale.setlocale(locale.LC_ALL, 'ru-RU')
 
 sg.theme(THEME)
 
@@ -25,21 +25,20 @@ def check_directory():
 
 def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
     # Основное окно приложения, само по себе ничего не делает, по сути навигационное меню.
-    # Единственное значение которое можно передать дальше название группы
+    # Единственное значение которое можно передать дальше номер группы
 
-    # Собираем файлы ведомостей, для добавления в выпадающий список, если файлов нет, создается пустой список
+    # Собираем номера групп из базы данных, если база пустая, то создается пустой список.
+    list_group = [f'Группа {num}' for num in set(i.group for i in Student.select())]
     try:
-        list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
         default_val = list_group[0]
     except IndexError:
-        list_group = []
         default_val = ''
 
     layout = [
         [sg.Menu([['Настройки', ['Параметры']]], font=(FONT_FAMILY, 12))],
         [sg.Text("Ведомости детский сад")],
         [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Ученики', expand_x=True)],
-        [sg.Combo(list_group, expand_x=True, default_value=default_val, key='file_name', readonly=True),
+        [sg.Combo(list_group, expand_x=True, default_value=default_val, key='num_group', readonly=True),
          sg.Button('Отметить')],
         [sg.Button('Закрыть ведомости', expand_x=True)],
         [sg.Button('Заметки', expand_x=True)]
@@ -54,7 +53,7 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
 
         if event == 'Ученики':
             window.disappear()
-            kids_window(values['file_name'])
+            kids_window(values['num_group'])
             window.reappear()
 
         if event == 'Добавить ведомость':
@@ -89,11 +88,10 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
     window.close()
 
 
-logger.add('debug.log', level='ERROR')
-logger.add('absents.log', level='INFO')
+logger.add('logs/debug.log', level='ERROR')
+logger.add('logs/absents.log', level='INFO')
 
 
-@logger.catch()
 def main():
     check_directory()
     create_database()

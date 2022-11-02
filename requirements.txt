@@ -5,3 +5,4 @@ openpyxl==3.0.10
 PySimpleGUI==4.60.3
 win32-setctime==1.1.0
 pip==22.2.2
+peewee~=3.15.3

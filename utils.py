@@ -5,6 +5,7 @@ from conf import *
 from pathlib import Path
 import shutil
 import os
+from database import Student
 
 MONTH_DICT = {
     'Сентябрь': (9, YEAR[0]), 'Октябрь': (10, YEAR[0]), 'Ноябрь': (11, YEAR[0]), 'Декабрь': (12, YEAR[0]),
@@ -20,16 +21,12 @@ def get_work_days(month):
             if day[0] != 0 and day[1] in wd]
 
 
-def get_kids(path):
+def get_kids(num_group):
     """
-    :param path: Относительный путь к файлу.
+    :param num_group: Номер группы из базы данных.
     :return: Список строк с именами детей
     """
-    wb = load_workbook(path)
-    ws = wb['Посещаемость']
-    names = ws['B16:B38']
-    return [names[i][0].value for i in range(23) if names[i][0].value]
-
+    return [student for student in Student.select().where(Student.group == num_group).order_by(Student.name)]
 
 # region NEW SHEET
 def create_new_sheet(file_name, base, month):

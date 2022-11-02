@@ -1,4 +1,7 @@
 /Ведомости/
 /venv
-debug.log
+/logs
 /.idea
+/database.db
+/lab.py
+/scripts.py

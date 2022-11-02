@@ -1,39 +1,40 @@
-import PySimpleGUI as sg
-from openpyxl import load_workbook
-from utils import get_kids
 from conf import *
-from pathlib import Path
+import PySimpleGUI as sg
+from database import Student
+from datetime import datetime
+from utils import get_kids
 
+def gen_table(num_group):
+    cnt = 1
+    table = []
+    for i in get_kids(num_group):
+        table.append([cnt, i.name, f'{i.added:%d.%m.%y}'])
+        cnt += 1
+    return table
 
-def kids_window(file_name: str):
+def kids_window(num_group: int):
     """
     Создает окно для добавления новых детей в ведомость.
 
-    :param file_name: str: имя файла без расширения
+    :param num_group: int: Номер группы из базы данных
     """
-    # Путь к файлу
-    path = Path(Path.cwd(), 'Ведомости', file_name)
-
-    # Получаем имена и фамилии детей в виде списка строк
-
-    kids = get_kids(path)
 
     # Левая колонка
     left_col = [
         [sg.Text('Фамилия и имя')],
         [sg.Input(key='name', focus=True, size=29)],
-        [sg.Button('Добавить'), sg.Button('Удалить'), sg.Button('Исправить')],
-        [sg.Button('Сохранить', expand_x=True)],
+        [sg.Button('Добавить'), sg.Button('Удалить'), sg.Button('Исправить')]
     ]
     # Правая колонка
     right_col = [
-        [sg.Text(file_name)],
-        [sg.Table(headings=['№', 'Имя'], values=list(enumerate(kids, 1)), key='table', col_widths=[7, 20],
-                  auto_size_columns=False, justification='center', size=(20, 15))]
+        [sg.Text(f'Группа {num_group}')],
+        [sg.Table(headings=['№', 'Имя', 'Добавлен'], values=gen_table(num_group),
+                  key='table', col_widths=[7, 20, 10],
+                  auto_size_columns=False, justification='center', size=(20, 15), enable_events=True)]
     ]
 
     layout = [[sg.Column(left_col, element_justification='c'), sg.Column(right_col, element_justification='c')]]
-    window = sg.Window(f'Добавить ученика в группу {file_name}', layout, finalize=True,
+    window = sg.Window(f'Добавить ученика в группу {num_group}', layout, finalize=True,
                        font=(FONT_FAMILY, FONT_SIZE))
     window.bind("<Return>", "Добавить")
 
@@ -42,42 +43,35 @@ def kids_window(file_name: str):
         if event == sg.WINDOW_CLOSED:
             break
 
+        if event == 'table':
+            kids = [kid.name for kid in get_kids(num_group)]
+            if values['table']:
+                window['name'].update(kids[values['table'][0]])
+
         if event == 'Добавить' and values['name']:
-            kids.append(values['name'])
+            Student.create(name=values['name'], group=num_group, added=datetime.now(), active=True)
             window['name'].update('')
-            window['table'].update(values=enumerate(kids, 1))
+            window['table'].update(values=gen_table(num_group))
 
         if event == 'Исправить' and values['table']:
             if not values['name']:
                 sg.Popup('Введите имя!')
                 continue
-            kids[values['table'][0]] = values['name']
-            window['table'].update(values=enumerate(kids, 1))
+            old_name = get_kids(num_group)[values['table'][0]].name
+            new_name = values['name']
+            Student.update({Student.name: new_name}).where(Student.name == old_name).execute()
+            window['table'].update(values=gen_table(num_group))
             window['name'].update('')
 
         if event == 'Удалить':
-            kid = values['table'][0]
-            kids.pop(kid)
-            window['table'].update(values=enumerate(kids, 1))
+            Student.delete().where(Student.name == values['name']).execute()
+            window['table'].update(values=gen_table(num_group))
             window['name'].update('')
-
-        if event == 'Сохранить':
-            save_new_kids(path, kids)
-            break
 
     window.close()
 
 
-def save_new_kids(path, kids):
-    work_book = load_workbook(path)
-    ws = work_book['Посещаемость']
-    cells = 'B16:B38'
-    kids += ['' for _ in range(23 - len(kids))]
-
-    for i in range(len(kids)):
-        ws[cells][i][0].value = kids[i]
-    work_book.save(path)
-
 
 if __name__ == '__main__':
-    pass
+    kids_window(7)
+

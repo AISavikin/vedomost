@@ -10,7 +10,7 @@ class BaseModel(Model):
 
 class Student(BaseModel):
     id = AutoField(primary_key=True)
-    name = CharField(null=False)
+    name = CharField(null=False, unique=True)
     added = DateTimeField()
     group = IntegerField()
     active = BooleanField(default=True)
@@ -21,7 +21,7 @@ class Student(BaseModel):
 
 
 class Attendance(BaseModel):
-    id = ForeignKeyField(Student)
+    id = ForeignKeyField(Student, on_delete='CASCADE')
     day = IntegerField()
     month = CharField()
     year = IntegerField()
