@@ -53,7 +53,7 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
 
         if event == 'Ученики':
             window.disappear()
-            kids_window(values['num_group'])
+            kids_window(values['num_group'].split()[-1])
             window.reappear()
 
         if event == 'Добавить ведомость':
