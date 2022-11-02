@@ -14,6 +14,10 @@ MONTH_DICT = {
 
 date = datetime.now()
 
+def get_month_name(num_month):
+    for key, val in MONTH_DICT.items():
+        if val[0] == num_month:
+            return key
 
 def get_work_days(month):
     wd = (2, 4)  # Рабочие дни (СРЕДА, ПЯТНИЦА)

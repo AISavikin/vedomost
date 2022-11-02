@@ -10,7 +10,7 @@ from windows.add_new_sheet import add_new_sheet
 from windows.mark_kids import mark_kids
 from windows.notes import notes_window
 from windows.settings import settings_window
-from utils import close_all_sheets
+from utils import close_all_sheets, MONTH_DICT, date, get_month_name
 
 # locale.setlocale(locale.LC_ALL, 'ru-RU')
 
@@ -37,9 +37,10 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
     layout = [
         [sg.Menu([['Настройки', ['Параметры']]], font=(FONT_FAMILY, 12))],
         [sg.Text("Ведомости детский сад")],
-        [sg.Button('Добавить ведомость', expand_x=True), sg.Button('Ученики', expand_x=True)],
+        [sg.Button('Добавить группу', expand_x=True), sg.Button('Ученики', expand_x=True)],
         [sg.Combo(list_group, expand_x=True, default_value=default_val, key='num_group', readonly=True),
-         sg.Button('Отметить')],
+         sg.Combo([month_name for month_name in MONTH_DICT], default_value=get_month_name(date.month), key='month_name')],
+        [sg.Button('Отметить', expand_x=True)],
         [sg.Button('Закрыть ведомости', expand_x=True)],
         [sg.Button('Заметки', expand_x=True)]
     ]
@@ -56,22 +57,25 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
             kids_window(values['num_group'].split()[-1])
             window.reappear()
 
-        if event == 'Добавить ведомость':
+        if event == 'Добавить группу':
             window.disappear()
-            add_new_sheet(values['file_name'], list_group)
-            list_group = [group for group in os.listdir(path=r'Ведомости/') if '.xlsx' in group]
-            window['file_name'].update(values=list_group, set_to_index=0)
+            num_group = sg.PopupGetText('Введите номер группы', size=(10, 10))
+            if not num_group.isdigit():
+                sg.Popup('Только цифры!')
+                window.reappear()
+                continue
+            kids_window(int(num_group))
             window.reappear()
 
         if event == 'Отметить':
             window.disappear()
-            mark_kids(values['file_name'])
+            mark_kids(values['num_group'].split()[-1], values['month_name'])
             window.reappear()
 
-        if event == 'Заметки':
-            window.disappear()
-            notes_window(values['file_name'])
-            window.reappear()
+        # if event == 'Заметки':
+        #     window.disappear()
+        #     notes_window(values['file_name'])
+        #     window.reappear()
 
         if event == 'Закрыть ведомости':
             if sg.Window('Вы уверены?', [

@@ -1,6 +1,6 @@
 from peewee import *
 
-db = SqliteDatabase('database.db')
+db = SqliteDatabase('database.db', pragmas={'foreign_keys': 1})
 
 
 class BaseModel(Model):
@@ -9,7 +9,7 @@ class BaseModel(Model):
 
 
 class Student(BaseModel):
-    id = AutoField(primary_key=True)
+    id = AutoField(primary_key=True, unique=True)
     name = CharField(null=False, unique=True)
     added = DateTimeField()
     group = IntegerField()
@@ -21,9 +21,9 @@ class Student(BaseModel):
 
 
 class Attendance(BaseModel):
-    id = ForeignKeyField(Student, on_delete='CASCADE')
+    id = ForeignKeyField(Student, on_delete='cascade')
     day = IntegerField()
-    month = CharField()
+    month = IntegerField()
     year = IntegerField()
     absent = CharField()
 
