@@ -3,6 +3,7 @@ import locale
 import os
 from conf import *
 import PySimpleGUI as sg
+from database import create_database
 
 from windows.kids_window import kids_window
 from windows.add_new_sheet import add_new_sheet
@@ -95,6 +96,7 @@ logger.add('absents.log', level='INFO')
 @logger.catch()
 def main():
     check_directory()
+    create_database()
     main_window()
 
 
