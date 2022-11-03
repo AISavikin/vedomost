@@ -39,7 +39,7 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
         [sg.Combo(list_group, expand_x=True, default_value=default_val, key='num_group', readonly=True),
          sg.Combo([month_name for month_name in MONTH_DICT], default_value=get_month_name(date.month), key='month_name')],
         [sg.Button('Отметить', expand_x=True)],
-        [sg.Button('Закрыть ведомости', expand_x=True)],
+        [sg.Button('Ведомости', expand_x=True)],
         [sg.Button('Заметки', expand_x=True)]
     ]
 
@@ -78,7 +78,7 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
         #     notes_window(values['file_name'])
         #     window.reappear()
 
-        if event == 'Закрыть ведомости':
+        if event == 'Ведомости':
             window.disappear()
             sheet(int(values['num_group'].split()[-1]), values['month_name'])
             window.reappear()

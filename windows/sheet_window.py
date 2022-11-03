@@ -39,7 +39,7 @@ def sheet(num_group, month):
     col_width = [3, 20] + [4 for _ in range(len(head))]
 
     layout = [
-        [sg.Text(f'Группа {num_group} {get_month_name(month)}'), sg.Button('+'), sg.Combo(groups, k='group'),
+        [sg.Text(f'Группа {num_group} {get_month_name(month)}'),  sg.Combo(groups, k='group'), sg.Button('+'),
          sg.Button('Закрыть ведомость')],
         [sg.Table(headings=head, values=num_table(val), col_widths=col_width, auto_size_columns=False,
                   justification='c', key='table')]

@@ -5,12 +5,7 @@ from datetime import datetime
 from utils import get_kids
 
 def gen_table(num_group):
-    cnt = 1
-    table = []
-    for i in get_kids(num_group):
-        table.append([cnt, i.name, f'{i.added:%d.%m.%y}'])
-        cnt += 1
-    return table
+    return [[cnt, i.name, f'{i.added:%d.%m.%y}'] for cnt, i in enumerate(get_kids(num_group), 1)]
 
 def kids_window(num_group: int):
     """
