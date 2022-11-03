@@ -6,6 +6,7 @@ import PySimpleGUI as sg
 from database import create_database, Student
 
 from windows.kids_window import kids_window
+from windows.sheet_window import sheet
 from windows.add_new_sheet import add_new_sheet
 from windows.mark_kids import mark_kids
 from windows.notes import notes_window
@@ -60,6 +61,9 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
         if event == 'Добавить группу':
             window.disappear()
             num_group = sg.PopupGetText('Введите номер группы', size=(10, 10))
+            if not num_group:
+                window.reappear()
+                continue
             if not num_group.isdigit():
                 sg.Popup('Только цифры!')
                 window.reappear()
@@ -78,11 +82,9 @@ def main_window(font_family=FONT_FAMILY, font_size=FONT_SIZE):
         #     window.reappear()
 
         if event == 'Закрыть ведомости':
-            if sg.Window('Вы уверены?', [
-                [sg.Text('Закрывать ведомости нужно только в конце месяца!', font=(FONT_FAMILY, 35)),
-                 sg.Button('Да', font=(FONT_FAMILY, 35)), sg.Button('Отмена', font=(FONT_FAMILY, 35))]
-            ]).read(close=True)[0] == 'Да':
-                close_all_sheets()
+            window.disappear()
+            sheet(int(values['num_group'].split()[-1]), values['month_name'])
+            window.reappear()
 
         if event == 'Параметры':
             window.disappear()

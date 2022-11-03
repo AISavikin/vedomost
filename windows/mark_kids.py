@@ -24,9 +24,10 @@ def mark_absent(kids, absents, day, month_name):
                           year=MONTH_DICT[month_name][1], id=kids[kid].id)
 
 
-def mark_kids(num_group: int, month_name):
+def mark_kids(num_group: int, month_name: str):
     """
     Создает окно для проверки отсутствующих
+    :param month_name: str Название месяца
     :param num_group: int номер группы
     """
     # Получаем список рабочих дней
