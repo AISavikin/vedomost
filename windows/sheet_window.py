@@ -82,7 +82,7 @@ def gen_file_name(num_group, ext_group, month):
     return file_name
 
 
-def write_service_information(file_name, month, group, close_day):
+def write_service_information(file_name, month, group, close_day, work_days):
     work_book = load_workbook(file_name)
     ws = work_book['Посещаемость']
     ws['N3'].value = month
@@ -91,6 +91,7 @@ def write_service_information(file_name, month, group, close_day):
     ws['V3'].value = MONTH_DICT[month][1]
     ws['AG42'].value = MONTH_DICT[month][1]
     ws['Y42'].value = close_day
+    ws['C7'].value = work_days
     work_book.save(file_name)
 
 def colorize_weekend(file_name, month):
@@ -109,7 +110,8 @@ def close_sheet(num_group, ext_group, month, head, val, close_day):
     file_name = gen_file_name(num_group, ext_group, month)
     write_xls(head, val, file_name)
     group = f'Группа {num_group}' if not ext_group else f'Группа {num_group}, {ext_group}'
-    write_service_information(file_name, get_month_name(month), group, close_day)
+    work_days = len(head) - 4
+    write_service_information(file_name, get_month_name(month), group, close_day, work_days)
     colorize_weekend(file_name, month)
     sg.Popup(f'Ведомость для {group} создана успешно!')
 

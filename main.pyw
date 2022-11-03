@@ -1,5 +1,4 @@
 from loguru import logger
-import locale
 import os
 from conf import *
 import PySimpleGUI as sg
@@ -7,13 +6,11 @@ from database import create_database, Student
 
 from windows.kids_window import kids_window
 from windows.sheet_window import sheet
-from windows.add_new_sheet import add_new_sheet
 from windows.mark_kids import mark_kids
 from windows.notes import notes_window
 from windows.settings import settings_window
-from utils import close_all_sheets, MONTH_DICT, date, get_month_name
+from utils import MONTH_DICT, date, get_month_name
 
-# locale.setlocale(locale.LC_ALL, 'ru-RU')
 
 sg.theme(THEME)
 
