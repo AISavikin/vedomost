@@ -9,7 +9,7 @@ def gen_headers(num_group, month):
     kids = Student.select().filter(group=num_group)
     kids_id = [str(i.id) for i in kids]
     data = Attendance.select().filter(month=month)
-    days = set(i.day for i in data if str(i.id) in kids_id)
+    days = set(i.day for i in data if str(i.student_id) in kids_id)
     if not days:
         return ['№', 'Фамилия, Имя', 'Н/д']
     return ['№', 'Фамилия, Имя'] + [str(i) for i in sorted(days)] + ['Н', 'Б']
@@ -20,7 +20,7 @@ def gen_table(num_group, month):
     values = []
     for kid in kids:
         name = [kid.name]
-        row = [(i.day, i.absent) for i in Attendance.select().filter(month=month, id=kid.id)]
+        row = [(i.day, i.absent) for i in Attendance.select().filter(month=month, student_id=kid.id)]
         row = [i[1] for i in sorted(row)]
         values.append(name + row + [row.count('н'), row.count('б')])
     return values

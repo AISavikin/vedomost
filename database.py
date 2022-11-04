@@ -21,7 +21,8 @@ class Student(BaseModel):
 
 
 class Attendance(BaseModel):
-    id = ForeignKeyField(Student, on_delete='cascade')
+    id = AutoField(primary_key=True, unique=True)
+    student_id = ForeignKeyField(Student, on_delete='cascade')
     day = IntegerField()
     month = IntegerField()
     year = IntegerField()

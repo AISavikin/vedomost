@@ -8,22 +8,22 @@ from loguru import logger
 def get_absents(kids, day, month):
     absent = []
     for kid in kids:
-        for i in Attendance.filter(id=kid.id, day=day, month=month):
-            if not i.absent:
-                absent.append('')
-                continue
-            absent.append(i.absent)
-    if not absent:
-        absent = ['' for _ in range(len(kids))]
+        tmp = ''
+        for i in Attendance.filter(student_id=kid.id, day=day, month=month):
+            tmp = i.absent
+        absent.append(tmp)
     return absent
 
-
 def mark_absent(kids, absents, day, month_name):
-    for kid in range(len(kids)):
-        Attendance.create(absent=absents[kid], day=day, month=MONTH_DICT[month_name][0],
-                          year=MONTH_DICT[month_name][1], id=kids[kid].id)
+    month, year = MONTH_DICT[month_name]
+    for indx, kid in enumerate(kids):
+        attendance = Attendance.select().filter(day=day, student_id=kid.id, year=year, month=month)
+        if not len(attendance):
+            Attendance.create(absent=absents[indx], day=day, month=month, year=year, student_id=kid.id)
+        else:
+            Attendance.update({Attendance.absent: absents[indx]}).where(Attendance.id == attendance[0].id).execute()
 
-
+@logger.catch
 def mark_kids(num_group: int, month_name: str):
     """
     Создает окно для проверки отсутствующих
@@ -67,7 +67,7 @@ def mark_kids(num_group: int, month_name: str):
         prev_focus = focus.get_previous_focus()
         next_focus = focus.get_next_focus()
         if event == 'date':
-            absent = get_absents(kids, values['date'], MONTH_DICT[month_name][0])
+            absent = get_absents(get_kids(num_group), values['date'], MONTH_DICT[month_name][0])
             for i in range(len(absent)):
                 window[i].Update(absent[i])
 
