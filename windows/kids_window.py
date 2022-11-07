@@ -4,8 +4,10 @@ from database import Student
 from datetime import datetime
 from utils import get_kids
 
+
 def gen_table(num_group):
     return [[cnt, i.name, f'{i.added:%d.%m.%y}'] for cnt, i in enumerate(get_kids(num_group), 1)]
+
 
 def kids_window(num_group: int):
     """
@@ -66,7 +68,5 @@ def kids_window(num_group: int):
     window.close()
 
 
-
 if __name__ == '__main__':
     kids_window(7)
-
