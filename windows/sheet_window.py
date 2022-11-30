@@ -16,7 +16,7 @@ def gen_headers(num_group, month):
 
 
 def gen_table(num_group, month):
-    kids = Student.select().filter(group=num_group)
+    kids = Student.select().filter(group=num_group).order_by(Student.name)
     values = []
     for kid in kids:
         name = [kid.name]
@@ -86,11 +86,11 @@ def write_service_information(file_name, month, group, close_day, work_days):
     work_book = load_workbook(file_name)
     ws = work_book['Посещаемость']
     ws['N3'].value = month
-    ws['AA42'].value = month
+    ws['AA43'].value = month
     ws['C5'].value = group
     ws['V3'].value = MONTH_DICT[month][1]
-    ws['AG42'].value = MONTH_DICT[month][1]
-    ws['Y42'].value = close_day
+    ws['AG43'].value = MONTH_DICT[month][1]
+    ws['Y43'].value = close_day
     ws['C7'].value = work_days
     work_book.save(file_name)
 
