@@ -32,6 +32,7 @@ def settings_window():
     layout = [
         [sg.Text('Год:'), sg.Combo(combo_list, default_value=year, enable_events=True, k='year')],
         [sg.Text('Тема: '), sg.Combo(sg.theme_list(), default_value=theme, k='theme')],
+        [sg.Text('Файл базы данных'), sg.Input(k='bd', default_text=DB), sg.FileBrowse()],
         [sg.Button('Предпросмотр темы', expand_x=True)],
         [sg.Button('Изменить шрифт', expand_x=True)],
         [sg.Button('Сохранить'), sg.Button('Отмена', expand_x=True)]
@@ -58,8 +59,8 @@ def settings_window():
 
         if event == 'Сохранить':
             theme = values['theme']
-            with open(Path(Path.cwd(), 'conf.py'), 'w') as f:
-                f.write(f'YEAR = {year}\nFONT_FAMILY = "{font_family}"\nFONT_SIZE = {font_size}\nTHEME = "{theme}"')
+            with open(Path(Path.cwd(), 'conf.py'), 'w', encoding='utf-8') as f:
+                f.write(f'YEAR = {year}\nFONT_FAMILY = "{font_family}"\nFONT_SIZE = {font_size}\nTHEME = "{theme}"\nDB = r"{values["bd"]}"')
             sg.Popup('Настройки применятся после перезапуска')
             break
     window.close()

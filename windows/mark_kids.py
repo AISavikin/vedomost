@@ -78,7 +78,10 @@ def mark_kids(num_group: int, month_name: str):
             focus.update('н')
 
         if event == 'Up:38':
-            prev_focus.set_focus()
+            if type(prev_focus) is sg.PySimpleGUI.Combo:
+                pass
+            else:
+                prev_focus.set_focus()
 
         if event == 'Down:40':
             if type(focus) is sg.PySimpleGUI.Button:
